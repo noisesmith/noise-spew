@@ -1,0 +1,15 @@
+* ideas
+** port csound dsp
+** tracker based on edn input
+
+* references
+play with [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/package-summary.html][sound.sampled]]
+io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html][audiosystem]]
+create instances of classes implementing the [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Clip.html][clip]] interface for samples
+perhaps also [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/DataLine.html][dataline]] / [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/SourceDataLine.html][sourcedataline]]
+use an [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/AudioInputStream.html][audioinputstream]] has a defined format and duration
+
+* steps
+** create a mixer
+** get a sourcedataline on the mixer
+** feed audio data to the sourcedataline
