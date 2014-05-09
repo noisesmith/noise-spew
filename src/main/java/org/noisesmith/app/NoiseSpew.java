@@ -38,10 +38,12 @@ class BiMap {
         return store.get(i);
     }
     public BiConsumer<Integer,String> reindex = (i, s) -> values.put(s, i);
+    public BiConsumer<String,Integer> indexre = (s, i) -> store.put(i, s);
     public void forEach(BiConsumer<Integer,String> action) {
         store.forEach(action);
         values.clear();
         store.forEach(reindex);
+        values.forEach(indexre);
     }
 }
 
