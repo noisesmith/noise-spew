@@ -113,13 +113,14 @@ class NoiseSpew {
                 System.out.println("loading " + args[i]);
                 loops[i] = new Loop(args[i]);
             }
-            runInteractive(args, loops);
+            BiMap<String> sources = new BiMap<String>(args);
+            runInteractive(sources, loops);
         } catch (Exception e) {
             System.err.println("in noise-spew " + e.getMessage());
             e.printStackTrace();
         }
     }
-    public static void runInteractive( String[] resources, Loop[] loops ) {
+    public static void runInteractive( BiMap<String> resources, Loop[] loops ) {
         parse(System.in, resources, loops);
     }
     private static char getCommand(Scanner in, char defaultc) {
@@ -138,12 +139,8 @@ class NoiseSpew {
         return idx;
     }
     public static void parse( InputStream stream,
-                              String[] iNresources,
+                              BiMap<String> resources,
                               Loop[] iNloops ) {
-        ArrayList<String> resources = new ArrayList<String>();
-        for(String s : iNresources) {
-            resources.add(s);
-        }
         ArrayList<Loop> loops = new ArrayList<Loop>();
         for (Loop l : iNloops) {
             loops.add(l);
@@ -163,13 +160,7 @@ class NoiseSpew {
                 break;
             case 'l': // list resources, clips
                 line = in.nextLine();
-                idx = 0;
-                for(ListIterator<String> s = resources.listIterator(0);
-                    s.hasNext();) {
-                    msg = idx + " : " + s.next();
-                    System.out.println(msg);
-                    idx++;
-                }
+                resources.forEach((k, v) -> System.out.println(k + " : " + v));
                 System.out.println("---");
                 idx = 0;
                 for(ListIterator<Loop> li = loops.listIterator(0);
