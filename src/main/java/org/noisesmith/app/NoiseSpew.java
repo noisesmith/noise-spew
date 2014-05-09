@@ -14,16 +14,19 @@ import java.util.ListIterator;
 import java.util.Hashtable;
 import java.util.function.BiConsumer;
 
-class BiMap {
-    // for now specializing on string <-> int
-    public Hashtable<Integer,String> store;
-    public Hashtable<String,Integer> values;
+class BiMap<V> {
+    // for now specializing on V <-> int
+    public Hashtable<Integer,V> store;
+    public Hashtable<V,Integer> values;
     public int index;
-    public BiMap ( String[] strings ) {
-        store = new Hashtable<Integer,String>();
-        values = new Hashtable<String,Integer>();
+    public BiMap ( V[] initVals ) {
+        store = new Hashtable<Integer,V>();
+        values = new Hashtable<V,Integer>();
+        for (V v : initVals) {
+            put(v);
+        }
     }
-    public int put( String v) {
+    public Integer put( V v ) {
         int at;
         if (values.containsKey(v)) {
             return values.get(v);
@@ -34,15 +37,16 @@ class BiMap {
             return at;
         }
     }
-    public String get( int i ) {
+    public V get( Integer i ) {
         return store.get(i);
     }
-    public BiConsumer<Integer,String> reindex = (i, s) -> values.put(s, i);
-    public BiConsumer<String,Integer> indexre = (s, i) -> store.put(i, s);
-    public void forEach(BiConsumer<Integer,String> action) {
+    public BiConsumer<Integer,V> reindex = (i, s) -> values.put(s, i);
+    public BiConsumer<V,Integer> indexre = (s, i) -> store.put(i, s);
+    public void forEach(BiConsumer<Integer,V> action) {
         store.forEach(action);
         values.clear();
         store.forEach(reindex);
+        store.clear();
         values.forEach(indexre);
     }
 }
