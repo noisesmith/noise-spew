@@ -66,7 +66,7 @@ class Loop {
         AudioInputStream instream = AudioSystem.getAudioInputStream(sourcefile);
         clip.open(instream);
         start = 0.0;
-        end = (clip.getMicrosecondLength() / 1e+6) - 1;
+        end = (clip.getMicrosecondLength() / 1e+6) -1;
     }
     public void start () {
         if (clip.isRunning()) {
@@ -77,7 +77,7 @@ class Loop {
         double sr = tf / tt;
         int i = (int) Math.floor(sr * start);
         int o = (int) Math.floor(sr * end);
-        if (start >= 0 && start < end && end < tf) {
+        if (i >= 0 && i < o && o < tf) {
             clip.setLoopPoints(i, o);
             if (clip.getFramePosition() < i || clip.getFramePosition() > o) {
                 clip.setFramePosition(i);
