@@ -1,15 +1,60 @@
-* ideas
-** port csound dsp
-** tracker based on edn input
-
 * references
 play with [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/package-summary.html][sound.sampled]]
 io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html][audiosystem]]
-create instances of classes implementing the [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Clip.html][clip]] interface for samples
-perhaps also [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/DataLine.html][dataline]] / [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/SourceDataLine.html][sourcedataline]]
-use an [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/AudioInputStream.html][audioinputstream]] has a defined format and duration
+* DONE [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Clip.html][Clip]]
+  .open( [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/AudioInputStream.html][AudioInputStream]] ) ( AudioSystem.getAudioInputStream(file) )
+* [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Mixer.html][Mixer]]
+  .getLine( [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Line.Info.html][Line.Info]] Mixer.getSourceLineInfo()[N] )
+perhaps also [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/DataLine.html][dataline]] / [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/SourceDataLine.html][sourcedataline]] Mixer.getLine() / DataLine.Info
+
+
+* features
+** load files
+** patterns of playback beyond simple looping
+** DONE data file loading (json)
+
+* ideas
+** port csound dsp
+** tracker based on edn input
 
 * steps
 ** create a mixer
 ** get a sourcedataline on the mixer
 ** feed audio data to the sourcedataline
+
+* java8 lambda
+** class::method syntax
+   http://stackoverflow.com/q/22663112/1093528 (via #java:idletask)
+** shove generics in?
+   ClassName::<String>new (via #java:surial)
+** type inference (generics inference?)
+   (idletask)
+** type system inversion
+   (surial)
+   tail-wags-dog scenario
+   foo.x(someLambda): the type system inverts? Instead of figuring out
+   the type of the expression 'someLambda' and then trying to figure out
+   which variant of the x() method call you meant...
+   instead it'll check all the possible variants of x(),
+   figure out which ones can even take lambdas, and, assuming there's
+   just one method, take the type that this method invocation wishes to
+   have, and then uses that to determine the type of the lambda. Very
+   weird, but ingenious because it allows very succint syntax.
+   Weird-ass example of this in action: I want a Runnable that I can
+   serialize. How? Well, like this:
+     Runnable r = (Runnable & Serializable)
+                  () -> System.out.println("Weird! A cast with an ampersand?");
+   The lambda is target typed to 'Runnable & Serializable' now.
+   This doesn't currently work, seems borken:
+   Object x = (Runnable)
+               someBool ? () -> {return;} : () -> {return;}
+   But that doesn't happen. According to the spec, this
+   reversed typing stuff occurs ONLY for expressions in method
+   invocations (the 'a' in foo(a)), and assignments (the a in Type
+   varName = a; or just Type varName; varName = a;).
+   Everywhere else, no target typing.
+   (and, no target typing? Then no closures).
+** @FunctionalInterface
+   (idletask)
+   any interface with n methods and n - 1 having a
+   default implmenetation is a @FunctionalInterface for the nth method
