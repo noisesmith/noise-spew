@@ -190,6 +190,20 @@ class NoiseSpew {
                 loop.end = o;
                 loop.start();
                 break;
+            case 's': // add source
+                line = in.nextLine().substring(1);
+                resources.put(line);
+                break;
+            case 'a': // add loop
+                try {
+                    idx = in.nextInt();
+                    line = resources.get(idx);
+                    loops.add(new Loop(line));
+                } catch (Exception e) {
+                    System.out.println("could not load loop: " +
+                                       e.getMessage());
+                }
+                break;
             default:
                 line = in.nextLine();
                 System.out.println("invalid command: " + command + line);
