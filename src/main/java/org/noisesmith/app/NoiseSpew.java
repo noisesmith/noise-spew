@@ -12,6 +12,7 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.Hashtable;
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 class BiMap<V> {
@@ -20,11 +21,12 @@ class BiMap<V> {
     public Hashtable<V,Integer> values;
     public int index;
     public BiMap ( V[] initVals ) {
+        this(new ArrayList<V> (Arrays.asList(initVals)));
+    }
+    public BiMap ( ArrayList<V> initVals ) {
         store = new Hashtable<Integer,V>();
         values = new Hashtable<V,Integer>();
-        for (V v : initVals) {
-            put(v);
-        }
+        initVals.forEach((v) -> put(v));
     }
     public Integer put( V v ) {
         int at;
@@ -108,11 +110,17 @@ class NoiseSpew {
                 System.out.println("must specify a file");
                 System.exit(2);
             }
-            Loop[] loops = new Loop[args.length];
-            for (int i = 0; i < args.length; i++) {
-                System.out.println("loading " + args[i]);
-                loops[i] = new Loop(args[i]);
-            }
+            ArrayList<Loop> loops = new ArrayList<Loop>();
+            Arrays.asList(args)
+                .forEach((a) -> {
+                        try {
+                            System.out.println("loading " + a);
+                            loops.add(new Loop(a));
+                        } catch (Exception e) {
+                            System.err.println("loading loop" + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    });
             BiMap<String> sources = new BiMap<String>(args);
             runInteractive(sources, loops);
         } catch (Exception e) {
@@ -120,7 +128,8 @@ class NoiseSpew {
             e.printStackTrace();
         }
     }
-    public static void runInteractive( BiMap<String> resources, Loop[] loops ) {
+    public static void runInteractive( BiMap<String> resources,
+                                       ArrayList<Loop> loops ) {
         parse(System.in, resources, loops);
     }
     private static char getCommand(Scanner in, char defaultc) {
@@ -140,16 +149,13 @@ class NoiseSpew {
     }
     public static void parse( InputStream stream,
                               BiMap<String> resources,
-                              Loop[] iNloops ) {
-        ArrayList<Loop> loops = new ArrayList<Loop>();
-        for (Loop l : iNloops) {
-            loops.add(l);
-        }
+                              ArrayList<Loop> loops ) {
         Scanner in = new Scanner(stream);
         char command;
         String line;
         String msg;
-        Loop l;
+        Loop loop;
+        BiMap<Loop> loopmap;
         int idx;
         do {
             System.out.print("noise spew> ");
@@ -162,16 +168,14 @@ class NoiseSpew {
                 line = in.nextLine();
                 resources.forEach((k, v) -> System.out.println(k + " : " + v));
                 System.out.println("---");
-                idx = 0;
-                for(ListIterator<Loop> li = loops.listIterator(0);
-                    li.hasNext();) {
-                    l = li.next();
-                    msg = l.clip.isRunning() ? "on" : "off";
-                    msg = msg + " " + l.start + "->" + l.end;
-                    msg  = + idx + " - " + msg + " " + l.source;
-                    System.out.println(msg);
-                    idx++;
-                }
+                loopmap = new BiMap<Loop> (loops);
+                loopmap.forEach((i, l) -> {
+                        String mesg;
+                        mesg = i + " - " + (l.clip.isRunning() ? "on" : "off");
+                        mesg += " " + l.start + "->" + l.end;
+                        mesg +=  "	" + l.source;
+                        System.out.println(mesg);
+                    });
                 break;
             case 'p': // toggle playback
                 idx = getIdx(in, loops.size());
@@ -181,10 +185,10 @@ class NoiseSpew {
                 idx = getIdx(in, loops.size());
                 double i = in.nextDouble();
                 double o = in.nextDouble();
-                l = loops.get(idx);
-                l.start = i;
-                l.end = o;
-                l.start();
+                loop = loops.get(idx);
+                loop.start = i;
+                loop.end = o;
+                loop.start();
                 break;
             default:
                 line = in.nextLine();
