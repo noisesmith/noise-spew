@@ -12,10 +12,6 @@ class NoiseSpew {
     public static void main( String[] args ) {
         try {
             System.out.println( "starting noise spew:" );
-            if (args.length < 1) {
-                System.out.println("must specify a file");
-                System.exit(2);
-            }
             ArrayList<Loop> loops = new ArrayList<Loop>();
             Arrays.asList(args)
                 .forEach((a) -> {
@@ -39,9 +35,30 @@ class NoiseSpew {
     throws java.io.UnsupportedEncodingException {
         parse(System.in, resources, loops);
     }
-    public static void docommand( BiMap<String> resources,
+    public static void parse( InputStream stream,
+                              BiMap<String> resources,
+                              ArrayList<Loop> loops )
+    throws java.io.UnsupportedEncodingException {
+        InputStreamReader source = new InputStreamReader(stream, "UTF-8");
+        BufferedReader in = new BufferedReader(source);
+        ArrayList<Command> commands = new ArrayList<Command>();
+        long stamp = System.currentTimeMillis();
+        System.out.print("noise spew> ");
+        in.lines().forEachOrdered((s) -> {
+                String[] input = s.split(" ");
+                Command parsed = CommandParser.parse(input);
+                parsed.moment = System.currentTimeMillis() - stamp;
+                commands.add(parsed);
+                doCommand(resources, loops, commands, parsed);
+                System.out.println();
+                System.out.print("noise spew> ");
+            });
+    }
+    public static void doCommand( BiMap<String> resources,
                                   ArrayList<Loop> loops,
+                                  ArrayList<Command> commands,
                                   Command parsed) {
+        Command[] carray;
         Loop loop;
         switch (parsed.action) {
         case EXIT:
@@ -102,25 +119,37 @@ class NoiseSpew {
                 System.out.println("could not delete " + parsed.index);
             }
             break;
+        case STORECOMMANDS:
+            try {
+                carray = commands.toArray(new Command[0]);
+                Preset.store(carray, parsed.destination);
+            } catch (Exception e) {
+                System.out.println("could not store commands");
+                e.printStackTrace();
+            }
+            break;
+        case LOADCOMMANDS:
+            try {
+                carray = Preset.load(parsed.source);
+                ArrayList<Command> in = new ArrayList<Command>(Arrays
+                                                               .asList(carray));
+                in.removeIf((c) ->
+                            c.action == CommandParser .Action.STORECOMMANDS);
+                in.subList(1, in.size())
+                    .forEach((c) -> {
+                            c.moment -= in.get(0).moment;
+                            c.moment += parsed.moment;});
+                in.get(0).moment = parsed.moment;
+                System.out.println("would launch Futures here");
+            } catch (Exception e) {
+                System.out.println("could not load commands");
+                e.printStackTrace();
+            }
+            break;
         case NULL:
             System.out.println("failed to parse command");
         default:
             System.out.println("invalid command: " + parsed.action);
         }
-    }
-    public static void parse( InputStream stream,
-                              BiMap<String> resources,
-                              ArrayList<Loop> loops )
-    throws java.io.UnsupportedEncodingException {
-        InputStreamReader source = new InputStreamReader(stream, "UTF-8");
-        BufferedReader in = new BufferedReader(source);
-        System.out.print("noise spew> ");
-        in.lines().forEachOrdered((s) -> {
-                String[] input = s.split(" ");
-                Command parsed = CommandParser.parse(input);
-                docommand(resources, loops, parsed);
-                System.out.println();
-                System.out.print("noise spew> ");
-            });
     }
 }

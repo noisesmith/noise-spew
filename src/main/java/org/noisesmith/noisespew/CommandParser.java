@@ -76,6 +76,18 @@ class CommandParser {
                     c.index  = Integer.parseInt(s[0]);
                     return c;
                 });
+            put(Action.STORECOMMANDS,
+                (s) -> {
+                    Command c = new Command();
+                    c.destination = String.join(" ", s);
+                    return c;
+                });
+            put(Action.LOADCOMMANDS,
+                (s) -> {
+                    Command c = new Command();
+                    c.source = String.join(" ", s);
+                    return c;
+                });
         }};
     public enum Action {
         NULL,
@@ -87,6 +99,8 @@ class CommandParser {
         ADDLOOP,
         DELETESOURCE,
         DELETELOOP,
+        STORECOMMANDS,
+        LOADCOMMANDS
     }
     public static Command parse
         (Hashtable<String,Action> dispatcher,
@@ -96,6 +110,7 @@ class CommandParser {
         Function<String[],Command> f = parser.get(a);
         try {
             Command result = f.apply(Arrays.copyOfRange(line, 1, line.length));
+            result.action = a;
             return result;
         } catch (Exception e) {
             System.out.println("failed to parse command " + a + " on " + line);
