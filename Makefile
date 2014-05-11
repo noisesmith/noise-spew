@@ -6,7 +6,7 @@ default: ${TARGET}
 run: ${TARGET}
 	java -cp ${TARGET} ${MAIN} ${SF1} ${SF1} ${SF1} ${SF1}
 
-${TARGET}: ${SRCDIR}/NoiseSpew.java ${SRCDIR}/BiMap.java
+${TARGET}: ${SRCDIR}/*.java pom.xml
 	mvn package
 clean:
 	rm -f ${TARGET}
