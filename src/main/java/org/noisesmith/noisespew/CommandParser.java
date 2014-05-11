@@ -5,12 +5,15 @@ import java.util.function.Function;
 import java.util.Arrays;
 
 
-class Parsed {
+class Command {
     public CommandParser.Action action;
-    public Object[] args;
-    Parsed(CommandParser.Action a, Object[] o) {
+    public long moment; // min in ms since start
+    public int index; // numeric input selection
+    public double start;
+    public double end;
+    public String source;
+    Command(CommandParser.Action a) {
         action = a;
-        args = o;
     }
 }
 
@@ -26,47 +29,47 @@ class CommandParser {
             put("d", Action.DELETESOURCE);
             put("D", Action.DELETELOOP);
         }};
-    static final public Hashtable<Action,Function<String[],Object[]>>
-        defaultParser =  new Hashtable<Action,Function<String[],Object[]>>() {{
-            put(Action.EXIT, (s) -> {return new Object[0];});
-            put(Action.LIST, (s) -> {return new Object[0];});
+    static final public Hashtable<Action,Function<String[],Command>>
+        defaultParser =  new Hashtable<Action,Function<String[],Command>>() {{
+            put(Action.EXIT, (s) -> {return new Command(Action.EXIT);});
+            put(Action.LIST, (s) -> {return new Command(Action.LIST);});
             put(Action.PLAYTOGGLE,
                 (s) -> {
-                    Object[] o = new Object[1];
-                    o[0] = Integer.parseInt(s[0]); // index to toggle
-                    return o;
+                    Command c = new Command(Action.PLAYTOGGLE);
+                    c.index = Integer.parseInt(s[0]);
+                    return c;
                 });
             put(Action.LOOPPOINTS,
                 (s) -> {
-                    Object[] o = new Object[3];
-                    o[0] = Integer.parseInt(s[0]); // index to adjust
-                    o[1] = Double.parseDouble(s[1]); // start point
-                    o[2] = Double.parseDouble(s[2]); // end point
-                    return o;
+                    Command c = new Command(Action.LOOPPOINTS);
+                    c.index = Integer.parseInt(s[0]);
+                    c.start = Double.parseDouble(s[1]);
+                    c.end = Double.parseDouble(s[2]);
+                    return c;
                 });
             put(Action.ADDSOURCE,
                 (s) -> {
-                    Object[] o = new Object[1];
-                    o[0] = String.join(" ", s); // source location
-                    return o;
+                    Command c = new Command(Action.ADDSOURCE);
+                    c.source = String.join(" ", s);
+                    return c;
                 });
             put(Action.ADDLOOP,
                 (s) -> {
-                    Object[] o = new Object[1];
-                    o[0] = Integer.parseInt(s[0]); // index of source to realize
-                    return o;
+                    Command c = new Command(Action.ADDLOOP);
+                    c.index = Integer.parseInt(s[0]);
+                    return c;
                 });
             put(Action.DELETESOURCE,
                 (s) -> {
-                    Object[] o = new Object[1];
-                    o[0] = Integer.parseInt(s[0]); // index of source to delete
-                    return o;
+                    Command c = new Command(Action.DELETESOURCE);
+                    c.index = Integer.parseInt(s[0]);
+                    return c;
                 });
             put(Action.DELETELOOP,
                 (s) -> {
-                    Object[] o = new Object[1];
-                    o[0] = Integer.parseInt(s[0]); // index of loop to delete
-                    return o;
+                    Command c = new Command(Action.DELETELOOP);
+                    c.index  = Integer.parseInt(s[0]);
+                    return c;
                 });
         }};
     public enum Action {
@@ -80,23 +83,22 @@ class CommandParser {
         DELETESOURCE,
         DELETELOOP,
     }
-    public static Parsed parse
+    public static Command parse
         (Hashtable<String,Action> dispatcher,
-         Hashtable<Action,Function<String[],Object[]>> parser,
+         Hashtable<Action,Function<String[],Command>> parser,
          String[] line) {
         Action a = dispatcher.get(line[0]);
-        Function<String[],Object[]> f = parser.get(a);
+        Function<String[],Command> f = parser.get(a);
         try {
-            Object[] result = f.apply(Arrays.copyOfRange(line, 1, line.length));
-            Parsed parsed = new Parsed(a, result);
-            return parsed;
+            Command result = f.apply(Arrays.copyOfRange(line, 1, line.length));
+            return result;
         } catch (Exception e) {
             System.out.println("failed to parse command " + a + " on " + line);
             e.printStackTrace();
-            return new Parsed(Action.NULL, new Object[0]);
+            return new Command(Action.NULL);
         }
     }
-    public static Parsed parse(String[] line) {
+    public static Command parse(String[] line) {
         return parse(defaultDispatcher, defaultParser, line);
     }
 }

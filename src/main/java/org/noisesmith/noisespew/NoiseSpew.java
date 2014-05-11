@@ -41,10 +41,8 @@ class NoiseSpew {
     }
     public static void docommand( BiMap<String> resources,
                                   ArrayList<Loop> loops,
-                                  Parsed parsed) {
-        int idx;
+                                  Command parsed) {
         Loop loop;
-        Object[] args = parsed.args;
         switch (parsed.action) {
         case EXIT:
             System.exit(0);
@@ -62,54 +60,52 @@ class NoiseSpew {
                 });
             break;
         case PLAYTOGGLE:
-            idx = (int) args[0];
-            loops.get(idx).toggle();
+            if (loops.size() > parsed.index) {
+                loops.get(parsed.index).toggle();
+            } else {
+                System.out.println("could not toggle playback of " +
+                                   parsed.index);
+            }
             break;
         case LOOPPOINTS:
-            idx = (int) args[0];
-            if (loops.size() > idx) {
-                loop = loops.get(idx);
-                loop.start = (double) args[1];
-                loop.end = (double) args[2];
+            if (loops.size() > parsed.index) {
+                loop = loops.get(parsed.index);
+                loop.start = parsed.start;
+                loop.end = parsed.end;
                 loop.start();
             } else {
-                System.out.println("could not reloop " + idx);
+                System.out.println("could not reloop " + parsed.index);
             }
             break;
         case ADDSOURCE:
-            resources.put((String) args[0]);
+            resources.put(parsed.source);
             break;
         case ADDLOOP:
             try {
-                idx = (int) args[0];
-                loops.add(new Loop(resources.get(idx)));
+                loops.add(new Loop(resources.get(parsed.index)));
             } catch (Exception e) {
-                System.out.println("could not load loop: " + args);
+                System.out.println("could not load loop: " + parsed.index);
             }
             break;
         case DELETESOURCE:
-            idx = (int) args[0];
-            if(resources.containsKey(idx)) {
-                resources.remove(idx);
+            if(resources.containsKey(parsed.index)) {
+                resources.remove(parsed.index);
             } else {
-                System.out.println("could not delete " + idx);
+                System.out.println("could not delete " + parsed.index);
             }
             break;
         case DELETELOOP:
-            idx = (int) args[0];
-            if(loops.size() > idx) {
-                loops.get(idx).stop();
-                loops.remove(idx);
+            if(loops.size() > parsed.index) {
+                loops.get(parsed.index).stop();
+                loops.remove(parsed.index);
             } else {
-                System.out.println("could not delete " + idx);
+                System.out.println("could not delete " + parsed.index);
             }
             break;
         case NULL:
             System.out.println("failed to parse command");
         default:
-            System.out.println("invalid command: " +
-                               parsed.action + " " +
-                               parsed.args);
+            System.out.println("invalid command: " + parsed.action);
         }
     }
     public static void parse( InputStream stream,
@@ -121,7 +117,7 @@ class NoiseSpew {
         System.out.print("noise spew> ");
         in.lines().forEachOrdered((s) -> {
                 String[] input = s.split(" ");
-                Parsed parsed = CommandParser.parse(input);
+                Command parsed = CommandParser.parse(input);
                 docommand(resources, loops, parsed);
                 System.out.println();
                 System.out.print("noise spew> ");
