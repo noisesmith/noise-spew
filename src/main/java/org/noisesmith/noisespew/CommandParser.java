@@ -12,8 +12,11 @@ class Command {
     public double start;
     public double end;
     public String source;
+    public String destination;
     Command(CommandParser.Action a) {
         action = a;
+    }
+    Command() {
     }
 }
 
@@ -28,20 +31,22 @@ class CommandParser {
             put("a", Action.ADDLOOP);
             put("d", Action.DELETESOURCE);
             put("D", Action.DELETELOOP);
+            put("J", Action.STORECOMMANDS);
+            put("j", Action.LOADCOMMANDS);
         }};
     static final public Hashtable<Action,Function<String[],Command>>
         defaultParser =  new Hashtable<Action,Function<String[],Command>>() {{
-            put(Action.EXIT, (s) -> {return new Command(Action.EXIT);});
-            put(Action.LIST, (s) -> {return new Command(Action.LIST);});
+            put(Action.EXIT, (s) -> {return new Command();});
+            put(Action.LIST, (s) -> {return new Command();});
             put(Action.PLAYTOGGLE,
                 (s) -> {
-                    Command c = new Command(Action.PLAYTOGGLE);
+                    Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     return c;
                 });
             put(Action.LOOPPOINTS,
                 (s) -> {
-                    Command c = new Command(Action.LOOPPOINTS);
+                    Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     c.start = Double.parseDouble(s[1]);
                     c.end = Double.parseDouble(s[2]);
@@ -49,25 +54,25 @@ class CommandParser {
                 });
             put(Action.ADDSOURCE,
                 (s) -> {
-                    Command c = new Command(Action.ADDSOURCE);
+                    Command c = new Command();
                     c.source = String.join(" ", s);
                     return c;
                 });
             put(Action.ADDLOOP,
                 (s) -> {
-                    Command c = new Command(Action.ADDLOOP);
+                    Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     return c;
                 });
             put(Action.DELETESOURCE,
                 (s) -> {
-                    Command c = new Command(Action.DELETESOURCE);
+                    Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     return c;
                 });
             put(Action.DELETELOOP,
                 (s) -> {
-                    Command c = new Command(Action.DELETELOOP);
+                    Command c = new Command();
                     c.index  = Integer.parseInt(s[0]);
                     return c;
                 });
