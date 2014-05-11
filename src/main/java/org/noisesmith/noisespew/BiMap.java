@@ -9,7 +9,6 @@ class BiMap<V> {
     // for now specializing on V <-> int
     public Hashtable<Integer,V> store;
     public Hashtable<V,Integer> values;
-    public int index;
     public BiMap ( V[] initVals ) {
         this(new ArrayList<V> (Arrays.asList(initVals)));
     }
@@ -18,18 +17,32 @@ class BiMap<V> {
         values = new Hashtable<V,Integer>();
         initVals.forEach((v) -> put(v));
     }
-    public Integer put( V v ) {
+    public int findIndex () {
+        int i;
+        for(i = 0; i < Integer.MAX_VALUE; i++) {
+            if (!store.containsKey(i)) {
+                return i;
+            }
+        }
+        for(i = 0; i > Integer.MIN_VALUE; i--) {
+            if (!store.containsKey(i)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+    public int put( V v ) {
         int at;
         if (values.containsKey(v)) {
             return values.get(v);
         } else {
-            at = index++;
+            at = findIndex();
             store.put(at, v);
             values.put(v, at);
             return at;
         }
     }
-    public V get( Integer i ) {
+    public V get( int i ) {
         return store.get(i);
     }
     public BiConsumer<Integer,V> reindex = (i, s) -> values.put(s, i);
