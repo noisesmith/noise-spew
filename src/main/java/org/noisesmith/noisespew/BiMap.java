@@ -9,6 +9,9 @@ class BiMap<V> {
     // for now specializing on V <-> int
     public Hashtable<Integer,V> store;
     public Hashtable<V,Integer> values;
+    public BiMap () {
+        this(new ArrayList<V> ());
+    }
     public BiMap ( V[] initVals ) {
         this(new ArrayList<V> (Arrays.asList(initVals)));
     }
