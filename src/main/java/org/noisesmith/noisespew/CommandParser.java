@@ -13,6 +13,7 @@ class Command {
     public double end;
     public String source;
     public String destination;
+    public Boolean interactive;
     Command(CommandParser.Action a) {
         action = a;
     }
