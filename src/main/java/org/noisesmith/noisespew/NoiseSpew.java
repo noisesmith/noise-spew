@@ -187,6 +187,9 @@ class NoiseSpew {
                     e.printStackTrace();
                 }
                 break;
+            case HELP:
+                System.out.println(parsed.source);
+                break;
             case NULL:
                 System.out.println("failed to parse command");
             default:
