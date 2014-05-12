@@ -106,14 +106,16 @@ class CommandParser {
         (Hashtable<String,Action> dispatcher,
          Hashtable<Action,Function<String[],Command>> parser,
          String[] line) {
-        Action a = dispatcher.get(line[0]);
-        Function<String[],Command> f = parser.get(a);
         try {
+            Action a = dispatcher.get(line[0]);
+            Function<String[],Command> f = parser.get(a);
             Command result = f.apply(Arrays.copyOfRange(line, 1, line.length));
             result.action = a;
             return result;
         } catch (Exception e) {
-            System.out.println("failed to parse command " + a + " on " + line);
+            System.out.print("failed to parse command \"");
+            for(String token :  line) System.out.print(' ' + token);
+            System.out.println('"');
             e.printStackTrace();
             return new Command(Action.NULL);
         }
