@@ -28,6 +28,7 @@ class NoiseSpew {
             e.printStackTrace();
         }
     }
+
     public static void runInteractive(ArrayList<Command> initial) {
         SynchronousQueue<Command> queue = new SynchronousQueue();
         Thread looper = new Thread(new Runnable() {
@@ -54,9 +55,11 @@ class NoiseSpew {
             e.printStackTrace();
         }
     }
+
     public static void prompt() {
         System.out.print("\nnoise spew> ");
     }
+
     public static void parse( InputStream stream, SynchronousQueue queue )
         throws java.io.UnsupportedEncodingException {
         InputStreamReader source = new InputStreamReader(stream, "UTF-8");
@@ -80,6 +83,7 @@ class NoiseSpew {
                 }
             });
     }
+
     public static void loopWorker( SynchronousQueue<Command> queue )
         throws InterruptedException {
         BiMap<String> resources = new BiMap<String>();
@@ -203,6 +207,7 @@ class NoiseSpew {
             }
         }
     }
+
     public static void list( BiMap<String> resources, ArrayList<Loop> loops) {
         resources.forEach((k, v) -> System.out.println(k + " : " + v));
         System.out.println("---");
