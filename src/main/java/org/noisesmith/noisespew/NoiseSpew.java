@@ -127,6 +127,7 @@ class NoiseSpew {
                 } catch (Exception e) {
                     System.out.println("could not load loop: " +
                                        parsed.index);
+                    e.printStackTrace();
                 }
                 break;
             case DELETESOURCE:

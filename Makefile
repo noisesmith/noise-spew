@@ -4,7 +4,7 @@ MAIN=org.noisesmith.noisespew.NoiseSpew
 SF1=/home/justin/big/music/justin\ smith/ih/026/AUDIO/AUDIO001.WAV
 default: ${TARGET}
 run: ${TARGET}
-	java -cp ${TARGET} ${MAIN} ${SF1} ${SF1} ${SF1} ${SF1}
+	java -cp ${TARGET} ${MAIN}
 
 ${TARGET}: ${SRCDIR}/*.java pom.xml
 	mvn -q package
