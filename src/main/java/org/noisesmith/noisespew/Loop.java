@@ -19,8 +19,8 @@ class Loop {
                UnsupportedAudioFileException,
                IOException {
         source = input;
-        File sourcefile = new File(source);
         clip = AudioSystem.getClip();
+        File sourcefile = new File(source);
         AudioInputStream instream = AudioSystem.getAudioInputStream(sourcefile);
         clip.open(instream);
         start = 0.0;
