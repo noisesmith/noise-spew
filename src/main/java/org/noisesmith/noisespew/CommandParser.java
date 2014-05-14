@@ -102,8 +102,12 @@ class CommandParser {
 
     static final public Hashtable<String,Action>
         defaultDispatcher = new Hashtable<String,Action>() {{
+            put("q", Action.EXIT);
+            put("Q", Action.EXIT);
             put("e", Action.EXIT);
             put("h", Action.HELP);
+            put("H", Action.HELP);
+            put("?", Action.HELP);
             put("l", Action.LIST);
             put("p", Action.PLAYTOGGLE);
             put("x", Action.LOOPPOINTS);
@@ -192,12 +196,12 @@ class CommandParser {
                         helpstring.append("\n\n");
                         dispatcher.forEach((c,a2) -> {
                                 if (a2 == a) {
-                                    helpstring.append("> ")
-                                        .append(c)
-                                        .append(" -- ");
+                                    helpstring.append(" >")
+                                        .append(c);
                                 }
                             });
                         helpstring
+                            .append(" -- ")
                             .append(a)
                             .append('(')
                             .append(s[0])

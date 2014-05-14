@@ -12,20 +12,7 @@ import java.io.ByteArrayOutputStream;
 
 class Preset {
     static ObjectMapper json = new ObjectMapper();
-    public static Command[] load ( InputStream in )
-        throws java.io.IOException {
-        Command[] commands = json.readValue(in, Command[].class);
-        return commands;
-    }
-    public static Command[] load ( File in )
-        throws java.io.FileNotFoundException,
-               java.io.IOException {
-        return load(new FileInputStream(in));
-    }
-    public static Command[] load ( URL in )
-    throws java.io.IOException {
-        return load(in.openStream());
-    }
+
     public static Command[] load ( String in )
         throws java.io.IOException,
                java.io.FileNotFoundException {
@@ -43,20 +30,41 @@ class Preset {
         }
         return commands;
     }
-    public static void store ( Command[] commands, OutputStream destination )
-        throws java.io.IOException {
-        json.writeValue(destination, commands);
-    }
-    public static void store ( Command[] commands, File destination )
-        throws java.io.IOException,
-               java.io.FileNotFoundException {
-        store(commands, new FileOutputStream(destination));
-    }
+
     public static void store ( Command[] commands, String destination )
         throws java.io.IOException,
                java.io.FileNotFoundException {
         store(commands, new File(destination));
     }
+
+    public static Command[] load ( InputStream in )
+        throws java.io.IOException {
+        Command[] commands = json.readValue(in, Command[].class);
+        return commands;
+    }
+
+    public static Command[] load ( File in )
+        throws java.io.FileNotFoundException,
+               java.io.IOException {
+        return load(new FileInputStream(in));
+    }
+
+    public static Command[] load ( URL in )
+    throws java.io.IOException {
+        return load(in.openStream());
+    }
+
+    public static void store ( Command[] commands, OutputStream destination )
+        throws java.io.IOException {
+        json.writeValue(destination, commands);
+    }
+
+    public static void store ( Command[] commands, File destination )
+        throws java.io.IOException,
+               java.io.FileNotFoundException {
+        store(commands, new FileOutputStream(destination));
+    }
+
     public static String store ( Command[] commands ) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {

@@ -10,6 +10,7 @@ import java.io.File;
 
 class Loop {
     public String source;
+
     public Clip clip;
     public double start;
     public double end;
@@ -25,6 +26,7 @@ class Loop {
         start = 0.0;
         end = (clip.getMicrosecondLength() / 1e+6) -1;
     }
+
     public void start () {
         if (clip.isRunning()) {
             clip.stop();
@@ -45,9 +47,11 @@ class Loop {
                                " [" + tt + ']');
         }
     }
+
     public void stop () {
         clip.stop();
     }
+
     public void toggle () {
         if (clip.isRunning()) {
             stop();

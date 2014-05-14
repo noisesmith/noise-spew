@@ -74,7 +74,7 @@ class NoiseSpew {
                     parsed.interactive = true;
                     queue.put(parsed);
                 } catch (Exception e) {
-                    if (s == "") {
+                    if (s.matches("^\\s+$")) {
                         prompt();
                     } else {
                         System.out.println("error in parsing " + s);
@@ -89,7 +89,6 @@ class NoiseSpew {
         BiMap<String> resources = new BiMap<String>();
         ArrayList<Loop> loops = new ArrayList<Loop>();
         ArrayList<Command> commands = new ArrayList<Command>();
-        Command[] carray;
         Loop loop;
         while (true) {
             Command parsed = queue.take();
@@ -124,7 +123,7 @@ class NoiseSpew {
                 break;
             case ADDLOOP:
                 try {
-                    loops.add(new Loop(resources.get(parsed.index)));
+                    loops.add(0, new Loop(resources.get(parsed.index)));
                 } catch (Exception e) {
                     System.out.println("could not load loop: " +
                                        parsed.index);
@@ -147,8 +146,7 @@ class NoiseSpew {
                 break;
             case STORECOMMANDS:
                 try {
-                    carray = commands.toArray(new Command[0]);
-                    Preset.store(carray, parsed.destination);
+                    storeCommands(parsed.destination, commands);
                 } catch (Exception e) {
                     System.out.println("could not store commands");
                     e.printStackTrace();
@@ -156,36 +154,8 @@ class NoiseSpew {
                 break;
             case LOADCOMMANDS:
                 try {
-                    carray = Preset.load(parsed.source);
-                    List<Command> al = Arrays.asList(carray);
-                    ArrayList<Command> in = new ArrayList<Command>(al);
-                    Predicate<Command> p = (c) ->
-                        c.action == CommandParser.Action.STORECOMMANDS ||
-                        c.action == CommandParser.Action.LIST;
-                    in.removeIf(p);
-                    in.subList(1, in.size())
-                        .forEach((c) -> {
-                                c.moment -= in.get(0).moment;
-                                c.moment += parsed.moment;
-                                c.interactive = false;
-                            });
-                    in.get(0).moment = parsed.moment;
-                    in.forEach((c) -> {
-                            Runnable r = new Runnable() {
-                                    @Override
-                                    public void run () {
-                                        try {
-                                            Thread.sleep(c.moment);
-                                            queue.put(c);
-                                        } catch (Exception e) {
-                                            System.out.println("error loading" +
-                                                               c.action);
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                };
-                            new Thread(r, "command-" + c.action).start();
-                        });
+                    // TODO: option to offset by first time * -1
+                    loadCommands(parsed.source, 0, queue);
                 } catch (Exception e) {
                     System.out.println("could not load commands");
                     e.printStackTrace();
@@ -209,8 +179,9 @@ class NoiseSpew {
     }
 
     public static void list( BiMap<String> resources, ArrayList<Loop> loops) {
+        System.out.println("\nresources:\n");
         resources.forEach((k, v) -> System.out.println(k + " : " + v));
-        System.out.println("---");
+        System.out.println("\nloops:\n");
         BiMap<Loop> loopmap = new BiMap<Loop> (loops);
         loopmap.forEach((i, l) -> {
                 String mesg;
@@ -220,4 +191,49 @@ class NoiseSpew {
                 System.out.println(mesg);
             });
     }
+
+    public static void storeCommands(String destination,
+                                     ArrayList<Command> commands)
+        throws java.io.IOException {
+        ArrayList<Command> cs = (ArrayList<Command>) commands.clone();
+        Predicate<Command> p = (c) ->
+            c.action == CommandParser.Action.HELP ||
+            c.action == CommandParser.Action.LIST;
+        cs.removeIf(p);
+        Command[] carray = cs.toArray(new Command[0]);
+        Preset.store(carray, destination);
+    }
+
+    public static void loadCommands(String source, long offset,
+                                    SynchronousQueue queue)
+        throws java.io.IOException {
+        Command[] carray = Preset.load(source);
+        List<Command> al = Arrays.asList(carray);
+        ArrayList<Command> in = new ArrayList<Command>(al);
+        Predicate<Command> p = (c) ->
+            c.action == CommandParser.Action.STORECOMMANDS ||
+            c.action == CommandParser.Action.LIST;
+        in.removeIf(p);
+        in.forEach((c) -> {
+                c.moment += offset;
+                c.interactive = false;
+            });
+        in.forEach((c) -> {
+                Runnable r = new Runnable() {
+                                    @Override
+                                    public void run () {
+                                        try {
+                                            Thread.sleep(c.moment);
+                                            queue.put(c);
+                                        } catch (Exception e) {
+                                            System.out.println("error loading" +
+                                                               c.action);
+                                            e.printStackTrace();
+                                        }
+                                    }
+                    };
+                new Thread(r, "command-" + c.action).start();
+            });
+    }
 }
+
