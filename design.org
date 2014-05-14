@@ -5,9 +5,7 @@ io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSyste
   .open( [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/AudioInputStream.html][AudioInputStream]] ) ( AudioSystem.getAudioInputStream(file) )
 * [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Mixer.html][Mixer]]
   .getLine( [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Line.Info.html][Line.Info]] Mixer.getSourceLineInfo()[N] )
-perhaps also [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/DataLine.html][dataline]] / [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/SourceDataLine.html][sourcedataline]] Mixer.getLine() / DataLine.Info
-
-
+* TODO replace Clip with [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/SourceDataLine.html][SourceDataLine]] and [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html#getAudioInputStream-java.io.File-][getAudioInputStream]]
 * features
 ** DONE load files
 ** patterns of playback beyond simple looping
