@@ -11,11 +11,21 @@ import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.function.Predicate;
 import org.noisesmith.noisegenerator.Generator;
+import org.noisesmith.noisegenerator.Engine;
+import org.noisesmith.noisegenerator.UGen;
+import org.noisesmith.noisegenerator.DebugBytes;
 
 class NoiseSpew {
     public static void main( String[] args ) {
-        // Generator.main(null); // for debugging
         try {
+            if (false) {
+                Engine gen = new Engine();
+                UGen sine = new UGen();
+                sine.buffer = Generator.waveForm(2048);
+                gen.sources.add(sine);
+                Thread generator = new Thread(gen);
+                generator.start();
+            }
             System.out.println( "starting noise spew:" );
             ArrayList<Command> commands = new ArrayList<Command>();
             for(String arg : args) {
