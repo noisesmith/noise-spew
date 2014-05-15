@@ -14,6 +14,7 @@ class Loop {
     public Clip clip;
     public double start;
     public double end;
+
     public Loop (String input)
         throws LineUnavailableException,
                UnsupportedAudioFileException,

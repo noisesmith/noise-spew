@@ -13,6 +13,7 @@ import java.util.function.Predicate;
 import org.noisesmith.noisegenerator.Generator;
 import org.noisesmith.noisegenerator.Engine;
 import org.noisesmith.noisegenerator.UGen;
+import org.noisesmith.noisegenerator.StereoUGen;
 import org.noisesmith.noisegenerator.DebugBytes;
 
 class NoiseSpew {
@@ -20,9 +21,9 @@ class NoiseSpew {
         try {
             if (false) {
                 Engine gen = new Engine();
-                UGen sine = new UGen();
-                sine.buffer = Generator.waveForm(2048);
-                gen.sources.add(sine);
+                StereoUGen sample = new StereoUGen();
+                sample.buffer = UGen.fileBuffer("example.wav");
+                gen.sources.add(sample);
                 Thread generator = new Thread(gen);
                 generator.start();
             }
