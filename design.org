@@ -3,18 +3,23 @@ play with [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/package
 io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html][audiosystem]]
 * DONE [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Clip.html][Clip]]
   .open( [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/AudioInputStream.html][AudioInputStream]] ) ( AudioSystem.getAudioInputStream(file) )
-* [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Mixer.html][Mixer]]
+* DONE [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Mixer.html][Mixer]]
   .getLine( [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Line.Info.html][Line.Info]] Mixer.getSourceLineInfo()[N] )
 * TODO replace Clip with [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/SourceDataLine.html][SourceDataLine]] and [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html#getAudioInputStream-java.io.File-][getAudioInputStream]]
+  make an Engine class that keeps a collection of input generators,
+  each implementing a gen(size) method that returns a buffer.
+  make a UGen class that can be subclassed to make input generators.
 * features
 ** DONE load files
 ** patterns of playback beyond simple looping
 ** TODO data file loading (json) jackson
 
 * ideas
+** try [[http://www.yeppp.info/][yuppp]] for performance
 ** port csound dsp
 ** tracker based on edn input
 
+** integrate a graph lib for the ugens?
 * steps
 ** create a mixer
 ** get a sourcedataline on the mixer
