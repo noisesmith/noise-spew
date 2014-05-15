@@ -12,22 +12,17 @@ public final class Generator {
             int buffSize = 2048;
             SourceDataLine sink = sink(0, 44100, buffSize);
             System.out.println("sink is open");
-            byte[] backingBytes = dummyData(buffSize);
-            DebugBytes.toFile("./buffer-contents", backingBytes);
+            byte[] bytes = dummyData(buffSize);
             int toWrite = 0,
                 index = 0,
                 written = 0,
                 writeCount = 0;
-            byte[] bytes = new byte[buffSize];
-            for (int i = 0; i < 100000; i++) {
-                bytes = Arrays.copyOf(backingBytes, buffSize);
+            for (int i = 0; i < 100; i++) {
                 sink.write(bytes, 0, bytes.length);
-                // toWrite = (buffSize - index);
-                // written = sink.write(bytes, index, toWrite);
                 writeCount++;
-                // index = (index + written) % buffSize;
                 Thread.sleep((int)((buffSize/4) * (1000.0/44100)));
             }
+            DebugBytes.toFile("./buffer-contents", bytes);
             System.out.println("wrote " + writeCount + " buffers");
             sink.close();
             System.out.println("sink is closed");
