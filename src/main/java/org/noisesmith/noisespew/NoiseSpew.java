@@ -10,9 +10,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.function.Predicate;
+import org.noisesmith.noisegenerator.Generator;
 
 class NoiseSpew {
     public static void main( String[] args ) {
+        Generator.main(null); // debugging
         try {
             System.out.println( "starting noise spew:" );
             ArrayList<Command> commands = new ArrayList<Command>();
