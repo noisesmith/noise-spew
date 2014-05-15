@@ -14,7 +14,7 @@ import org.noisesmith.noisegenerator.Generator;
 
 class NoiseSpew {
     public static void main( String[] args ) {
-        Generator.main(null); // debugging
+        // Generator.main(null); // for debugging
         try {
             System.out.println( "starting noise spew:" );
             ArrayList<Command> commands = new ArrayList<Command>();
