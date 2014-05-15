@@ -43,17 +43,16 @@ public final class Generator {
     }
 
     public static SourceDataLine sink (int n, int sr, int buffSize)
-			throws LineUnavailableException {
-		Mixer.Info mixer_info = AudioSystem.getMixerInfo()[n];
-		Mixer mixer = AudioSystem.getMixer(mixer_info);
-		Encoding encoding = new Encoding("PCM_SIGNED");
-                float r = (float) sr;
-		AudioFormat format = new AudioFormat(encoding, r, 16, 2, 4, r,
-                                                     false);
-                Class target = SourceDataLine.class;
-		DataLine.Info line_info = new DataLine.Info(target, format);
-		SourceDataLine sink = (SourceDataLine) mixer.getLine(line_info);
-                sink.open(format, buffSize);
-		return sink;
-	}
+        throws LineUnavailableException {
+        Mixer.Info mixer_info = AudioSystem.getMixerInfo()[n];
+        Mixer mixer = AudioSystem.getMixer(mixer_info);
+        Encoding encoding = new Encoding("PCM_SIGNED");
+        float r = (float) sr;
+        AudioFormat format = new AudioFormat(encoding, r, 16, 2, 4, r, false);
+        Class target = SourceDataLine.class;
+        DataLine.Info line_info = new DataLine.Info(target, format);
+        SourceDataLine sink = (SourceDataLine) mixer.getLine(line_info);
+        sink.open(format, buffSize);
+        return sink;
+    }
 }
