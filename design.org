@@ -5,10 +5,24 @@ io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSyste
   .open( [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/AudioInputStream.html][AudioInputStream]] ) ( AudioSystem.getAudioInputStream(file) )
 * DONE [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Mixer.html][Mixer]]
   .getLine( [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Line.Info.html][Line.Info]] Mixer.getSourceLineInfo()[N] )
-* TODO replace Clip with [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/SourceDataLine.html][SourceDataLine]] and [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html#getAudioInputStream-java.io.File-][getAudioInputStream]]
+* TODO replace Loop with [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/SourceDataLine.html][SourceDataLine]] and [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html#getAudioInputStream-java.io.File-][getAudioInputStream]]
   make an Engine class that keeps a collection of input generators,
   each implementing a gen(size) method that returns a buffer.
   make a UGen class that can be subclassed to make input generators.
+** DONE make stereo audio files load to memory and play via mixer
+** TODO replace the interface using Clip in Loop with one using UGen
+*** TODO loop points
+*** TODO toggle on and off
+** DONE start
+** DONE stop
+** DONE toggle
+** TODO embedded clip
+*** DONE isRunning();
+* TODO features for UGens
+** TODO amplitude factor
+** DONE playback direction
+** TODO loop style (pingpong, oneshot, normal)
+** TODO loop fade
 * features
 ** DONE load files
 ** patterns of playback beyond simple looping
