@@ -19,25 +19,25 @@ io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSyste
 ** TODO embedded clip
 *** DONE isRunning();
 * TODO features for UGens
-** TODO amplitude factor
+** DONE amplitude factor
 ** DONE playback direction
+** DONE loop speed
 ** TODO loop style (pingpong, oneshot, normal)
 ** TODO loop fade
-* features
+* DONE features
 ** DONE load files
 ** patterns of playback beyond simple looping
-** TODO data file loading (json) jackson
+** DONE data file loading (json) jackson
 
 * ideas
 ** try [[http://www.yeppp.info/][yuppp]] for performance
 ** port csound dsp
 ** tracker based on edn input
-
 ** integrate a graph lib for the ugens?
-* steps
-** create a mixer
-** get a sourcedataline on the mixer
-** feed audio data to the sourcedataline
+* DONE steps
+** DONE create a mixer
+** DONE get a sourcedataline on the mixer
+** DONE feed audio data to the sourcedataline
 
 * java8 lambda
 ** class::method syntax
