@@ -242,10 +242,18 @@ class CommandParser {
             }
             return result;
         } catch (Exception e) {
-            System.out.print("failed to parse command \"");
-            for(String token :  line) System.out.print(' ' + token);
-            System.out.println('"');
-            e.printStackTrace();
+            if (line.length > 0 && !(line[0].isEmpty())) {
+                System.out.print("failed to parse command \"");
+                for(String token :  line) System.out.print(' ' + token);
+                System.out.println('"');
+                
+                for(String token : line) {
+                    for (byte b : token.getBytes()) {
+                        System.out.println("byte: " + (int)b);
+                    }
+                }
+                e.printStackTrace();
+            }
             return new Command(Action.NULL);
         }
     }

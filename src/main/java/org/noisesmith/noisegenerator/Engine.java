@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.concurrent.SynchronousQueue;
+import java.util.EnumMap;
 
 public class Engine implements Runnable {
     public enum Action {
@@ -56,28 +57,44 @@ public class Engine implements Runnable {
         }
     }
 
+    static final EnumMap<Action,String>
+        errors = new EnumMap<Action,String>(Engine.Action.class) {{
+            put(Action.TOGGLE, "could not toggle playback of");
+            put(Action.LOOPPOINTS, "could not reloop");
+            put(Action.CREATE, "could not load loop");
+            put(Action.DELETE, "could not delete");
+            put(Action.GAIN, "could not change amp of");
+            put(Action.RATE, "cound not change rate of");
+        }};
+
+    Boolean badIndex(Exec e) {
+        System.out.println("checking for bad index");
+        if (sources.size() <= e.index || e.index < 0) {
+            System.out.println("\nEngine error: " +
+                               errors.get(e.action) + " " +
+                               e.index);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     void respond(Exec e) {
         UGen loop;
         if (e == null) return;
+        if (e.action == null) return;
         try {
             switch(e.action) {
             case TOGGLE:
-                if (sources.size() > e.index) {
-                    sources.get(e.index).toggle();
-                } else {
-                    System.out.println("\ncould not toggle playback of " +
-                                       e.index);
-                }
+                if(badIndex(e)) return;
+                sources.get(e.index).toggle();
                 break;
             case LOOPPOINTS:
-                if (sources.size() > e.index) {
-                    loop = sources.get(e.index);
-                    loop.in(e.in);
-                    loop.out(e.out);
-                    loop.start();
-                } else {
-                    System.out.println("could not reloop " + e.index);
-                }
+                if(badIndex(e)) return;
+                loop = sources.get(e.index);
+                loop.in(e.in);
+                loop.out(e.out);
+                loop.start();
                 break;
             case CREATE:
                 try {
@@ -91,27 +108,16 @@ public class Engine implements Runnable {
                 }
                 break;
             case DELETE:
-                if (sources.size() > e.index) {
-                    loop = sources.get(e.index);
-                    // loop.active = false;
-                    sources.remove(loop);
-                } else {
-                    System.out.println("could not delete " + e.index);
-                }
+                if(badIndex(e)) return;
+                sources.remove(e.index);
                 break;
             case GAIN:
-                if (sources.size() > e.index) {
-                    sources.get(e.index).amp = e.parameter;
-                } else {
-                    System.out.println("could not change amp of " + e.index);
-                }
+                if(badIndex(e)) return;
+                sources.get(e.index).amp = e.parameter;
                 break;
             case RATE:
-                if (sources.size() > e.index) {
-                    sources.get(e.index).rate = e.parameter;
-                } else {
-                    System.out.println("could not change amp of " + e.index);
-                }
+                if(badIndex(e)) return;
+                sources.get(e.index).rate = e.parameter;
                 break;
             case DEBUG:
                 System.out.println("DEBUG");

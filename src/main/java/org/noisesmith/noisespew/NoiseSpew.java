@@ -181,8 +181,8 @@ class NoiseSpew {
                                                  parsed.index,
                                                  parsed.parameter));
                 break;
-            case NULL:
-                System.out.println("failed to parse command");
+            case NULL: // there is no command
+                break;
             default:
                 System.out.println("invalid command: " + parsed.action);
             }
