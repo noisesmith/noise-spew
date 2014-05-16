@@ -34,7 +34,8 @@ public class Engine implements Runnable {
         GAIN,
         RATE,
         DEBUG,
-        LOOPTYPE
+        LOOPTYPE,
+        MASTER
     }
 
     public static class Exec {
@@ -70,6 +71,10 @@ public class Engine implements Runnable {
         public Exec( Action a, String i ) {
             action = a;
             input = i;
+        }
+        public Exec( Action a, double p ) {
+            action = a;
+            parameter = p;
         }
         public Exec( Action a ) {
             action = a;
@@ -162,8 +167,11 @@ public class Engine implements Runnable {
                     loop.looping = UGen.LoopType.LOOP;
                 }
                 break;
+            case MASTER:
+                master = e.parameter;
+                break;
             default:
-                System.out.println("not handled: " + e.action);
+                System.out.println("Engine - not handled - : " + e.action);
             }
         } catch (Exception ex) {
             ex.printStackTrace();

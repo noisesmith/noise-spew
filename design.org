@@ -22,13 +22,16 @@ io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSyste
 ** DONE amplitude factor
 ** DONE playback direction
 ** DONE loop speed
-** TODO loop style (pingpong, oneshot, normal)
+** DONE loop style (pingpong, oneshot, normal)
 *** DONE pingpong turned on
 *** DONE oneshot turned on
 *** DONE selection of loop type interactively
 ** TODO create sine wave ugen creation option in ui
 ** TODO loop fade
 ** TODO removing unused embedded clips
+** TODO make a recorder UGen
+*** TODO linked list of arrays
+    (increasing size, each double the prev) to record into, finally compact
 * DONE features
 ** DONE load files
 ** patterns of playback beyond simple looping

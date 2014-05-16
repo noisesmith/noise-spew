@@ -53,7 +53,8 @@ class CommandParser {
         LOADCOMMANDS,
         AMPLITUDE,
         RATE,
-        LOOPTYPE
+        LOOPTYPE,
+        MASTER
     }
 
     static final public EnumMap<Action,String[]>
@@ -115,6 +116,10 @@ class CommandParser {
                     "index, type",
                     "set looping type 0=normal 1=pingpong 2=oneshot"
                 });
+            put(Action.MASTER, new String[]{
+                    "amp",
+                    "set master amplitude factor for all audio"
+                });
         }};
 
     static final public Hashtable<String,Action>
@@ -137,6 +142,7 @@ class CommandParser {
             put("v", Action.AMPLITUDE);
             put("r", Action.RATE);
             put("t", Action.LOOPTYPE);
+            put("V", Action.MASTER);
         }};
 
     static final public EnumMap<Action,Function<String[],Command>>
@@ -214,6 +220,12 @@ class CommandParser {
                     Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     c.selection = Integer.parseInt(s[1]);
+                    return c;
+                });
+            put(Action.MASTER,
+                (s) -> {
+                    Command c = new Command();
+                    c.parameter = Double.parseDouble(s[0]);
                     return c;
                 });
         }};
