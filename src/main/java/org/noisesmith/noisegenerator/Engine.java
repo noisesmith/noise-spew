@@ -33,12 +33,14 @@ public class Engine implements Runnable {
         LOOPPOINTS,
         GAIN,
         RATE,
-        DEBUG
+        DEBUG,
+        LOOPTYPE
     }
 
     public static class Exec {
         Action action;
         int index;
+        int selection;
         double in;
         double out;
         double parameter;
@@ -48,6 +50,11 @@ public class Engine implements Runnable {
         public Exec( Action a, int idx ) {
             action = a;
             index = idx;
+        }
+        public Exec( Action a, int idx, int s) {
+            action = a;
+            index = idx;
+            selection = s;
         }
         public Exec( Action a, int idx, double p ) {
             action = a;
@@ -139,6 +146,21 @@ public class Engine implements Runnable {
                 break;
             case DEBUG:
                 System.out.println("DEBUG");
+                break;
+            case LOOPTYPE:
+                if(badIndex(e)) return;
+                loop = sources.get(e.index);
+                switch (e.selection) {
+                case 1:
+                    loop.looping = UGen.LoopType.PINGPONG;
+                    break;
+                case 2:
+                    loop.looping = UGen.LoopType.ONESHOT;
+                    break;
+                case 0:
+                default:
+                    loop.looping = UGen.LoopType.LOOP;
+                }
                 break;
             default:
                 System.out.println("not handled: " + e.action);

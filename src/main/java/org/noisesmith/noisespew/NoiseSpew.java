@@ -181,6 +181,11 @@ class NoiseSpew {
                                                  parsed.index,
                                                  parsed.parameter));
                 break;
+            case LOOPTYPE:
+                gen.messages.put(new Engine.Exec(Engine.Action.LOOPTYPE,
+                                                 parsed.index,
+                                                 parsed.selection));
+                break;
             case NULL: // there is no command
                 break;
             default:

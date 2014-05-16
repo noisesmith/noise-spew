@@ -8,6 +8,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class UGen {
+    public enum LoopType {
+        LOOP,
+        PINGPONG,
+        ONESHOT
+    }
     // parent class for inputs to Engine instances
 
     // full scale is -1.0 ... 1.0 - anything larger will clip unless truncated
@@ -23,7 +28,8 @@ public class UGen {
     public int start = 0;
     public int end = 0;
     public String description = "ugen";
-    
+    public LoopType looping;
+
     double[] outBuffer;
 
     void normalizePosition() {
@@ -74,7 +80,22 @@ public class UGen {
             phase = 0.0;
             position = 0;
         } else {
-            phase = (phase + rate) % loopsize;
+            phase += rate;
+            if(phase >= loopsize || phase <= 0) {
+                switch (looping) {
+                    case ONESHOT:
+                        active = false;
+                        phase = 0;
+                        break;
+                    case PINGPONG:
+                        rate *= -1;
+                        phase += rate;
+                        break;
+                    case LOOP:
+                    default:
+                        phase %= loopsize;
+                    }
+            }
             position = ((int)phase)*direction+start;
         }
     }
@@ -105,6 +126,7 @@ public class UGen {
         active = false;
         start = 0;
         end = buf.length/2;
+        looping = LoopType.LOOP;
         outBuffer = new double[0];
         description = "unit generator";
     }

@@ -10,6 +10,7 @@ class Command {
 
     public long moment; // min in ms since start
     public int index; // numeric input selection
+    public int selection;
     public double start;
     public double end;
     public double parameter;
@@ -51,7 +52,8 @@ class CommandParser {
         STORECOMMANDS,
         LOADCOMMANDS,
         AMPLITUDE,
-        RATE
+        RATE,
+        LOOPTYPE
     }
 
     static final public EnumMap<Action,String[]>
@@ -109,6 +111,10 @@ class CommandParser {
                     "index, rate",
                     "set rate of playback for loop <index>"
                 });
+            put(Action.LOOPTYPE, new String[]{
+                    "index, type",
+                    "set looping type 0=normal 1=pingpong 2=oneshot"
+                });
         }};
 
     static final public Hashtable<String,Action>
@@ -130,6 +136,7 @@ class CommandParser {
             put("j", Action.LOADCOMMANDS);
             put("v", Action.AMPLITUDE);
             put("r", Action.RATE);
+            put("t", Action.LOOPTYPE);
         }};
 
     static final public EnumMap<Action,Function<String[],Command>>
@@ -200,6 +207,13 @@ class CommandParser {
                     Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     c.parameter = Double.parseDouble(s[1]);
+                    return c;
+                });
+            put(Action.LOOPTYPE,
+                (s) -> {
+                    Command c = new Command();
+                    c.index = Integer.parseInt(s[0]);
+                    c.selection = Integer.parseInt(s[1]);
                     return c;
                 });
         }};
