@@ -15,9 +15,10 @@ public class UGen {
     // simply outputs the contents of its buffer, same data to each channel,
     // looped
     public double[] buffer;
-    public int phase = 0;
+    public double phase = 0.0;
     public int position = 0;
     public double amp = 1.0;
+    public double rate = 1.0;
     public Boolean active = false;
     public int start = 0;
     public int end = 0;
@@ -30,10 +31,10 @@ public class UGen {
         int upper = Math.max(start, end);
         if (position < lower) {
             position = lower;
-            phase = 0;
+            phase = 0.0;
         } else if (position > upper) {
             position = upper;
-            phase = upper - lower;
+            phase = (double) upper - lower;
         }
     }
 
@@ -70,11 +71,11 @@ public class UGen {
         int loopsize = (end > start) ? end - start : start - end;
         int direction = (end > start) ? 1 : -1;
         if(loopsize == 0) {
-            phase = 0;
+            phase = 0.0;
             position = 0;
         } else {
-            phase = (phase + 1) % loopsize;
-            position = phase*direction+start;
+            phase = (phase + rate) % loopsize;
+            position = ((int)phase)*direction+start;
         }
     }
 
@@ -99,6 +100,7 @@ public class UGen {
 
     public UGen(double[] buf) {
         buffer = buf;
+        rate = 1.0;
         amp = 1.0;
         active = false;
         start = 0;

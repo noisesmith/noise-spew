@@ -171,6 +171,16 @@ class NoiseSpew {
             case HELP:
                 System.out.println(parsed.source);
                 break;
+            case AMPLITUDE:
+                gen.messages.put(new Engine.Exec(Engine.Action.GAIN,
+                                                 parsed.index,
+                                                 parsed.parameter));
+                break;
+            case RATE:
+                gen.messages.put(new Engine.Exec(Engine.Action.RATE,
+                                                 parsed.index,
+                                                 parsed.parameter));
+                break;
             case NULL:
                 System.out.println("failed to parse command");
             default:

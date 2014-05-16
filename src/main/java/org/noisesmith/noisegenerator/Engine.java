@@ -19,6 +19,7 @@ public class Engine implements Runnable {
         DELETE,
         LOOPPOINTS,
         GAIN,
+        RATE,
         DEBUG
     }
 
@@ -27,12 +28,18 @@ public class Engine implements Runnable {
         int index;
         double in;
         double out;
+        double parameter;
         double gain;
         String input;
 
         public Exec( Action a, int idx ) {
             action = a;
             index = idx;
+        }
+        public Exec( Action a, int idx, double p ) {
+            action = a;
+            index = idx;
+            parameter = p;
         }
         public Exec( Action a, int idx, double i, double o ) {
             action = a;
@@ -90,6 +97,20 @@ public class Engine implements Runnable {
                     sources.remove(loop);
                 } else {
                     System.out.println("could not delete " + e.index);
+                }
+                break;
+            case GAIN:
+                if (sources.size() > e.index) {
+                    sources.get(e.index).amp = e.parameter;
+                } else {
+                    System.out.println("could not change amp of " + e.index);
+                }
+                break;
+            case RATE:
+                if (sources.size() > e.index) {
+                    sources.get(e.index).rate = e.parameter;
+                } else {
+                    System.out.println("could not change amp of " + e.index);
                 }
                 break;
             case DEBUG:

@@ -12,6 +12,7 @@ class Command {
     public int index; // numeric input selection
     public double start;
     public double end;
+    public double parameter;
     public String source;
     public String destination;
     public Boolean interactive;
@@ -48,7 +49,9 @@ class CommandParser {
         DELETESOURCE,
         DELETELOOP,
         STORECOMMANDS,
-        LOADCOMMANDS
+        LOADCOMMANDS,
+        AMPLITUDE,
+        RATE
     }
 
     static final public EnumMap<Action,String[]>
@@ -98,6 +101,14 @@ class CommandParser {
                     "file",
                     "replay commands from json file <file>"
                 });
+            put(Action.AMPLITUDE, new String[]{
+                    "index, amp",
+                    "set amplitude of playback for loop <index>"
+                });
+            put(Action.RATE, new String[]{
+                    "index, rate",
+                    "set rate of playback for loop <index>"
+                });
         }};
 
     static final public Hashtable<String,Action>
@@ -117,6 +128,8 @@ class CommandParser {
             put("D", Action.DELETELOOP);
             put("J", Action.STORECOMMANDS);
             put("j", Action.LOADCOMMANDS);
+            put("v", Action.AMPLITUDE);
+            put("r", Action.RATE);
         }};
 
     static final public EnumMap<Action,Function<String[],Command>>
@@ -173,6 +186,20 @@ class CommandParser {
                 (s) -> {
                     Command c = new Command();
                     c.source = String.join(" ", s);
+                    return c;
+                });
+            put(Action.AMPLITUDE,
+                (s) -> {
+                    Command c = new Command();
+                    c.index = Integer.parseInt(s[0]);
+                    c.parameter = Double.parseDouble(s[1]);
+                    return c;
+                });
+            put(Action.RATE,
+                (s) -> {
+                    Command c = new Command();
+                    c.index = Integer.parseInt(s[0]);
+                    c.parameter = Double.parseDouble(s[1]);
                     return c;
                 });
         }};
