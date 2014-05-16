@@ -10,8 +10,20 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.concurrent.SynchronousQueue;
 import java.util.EnumMap;
+import java.util.Hashtable;
+import java.io.File;
 
 public class Engine implements Runnable {
+    public int buffSize;
+    public int cardIndex;
+    public int sr;
+    public ArrayList<UGen> sources;
+    SourceDataLine sink;
+    public double master = 0.5;
+    double[][] ugenBuffers;
+    public SynchronousQueue<Exec> messages;
+    Hashtable <String, double[]> buffers;
+
     public enum Action {
         STOP,
         START,
@@ -68,7 +80,6 @@ public class Engine implements Runnable {
         }};
 
     Boolean badIndex(Exec e) {
-        System.out.println("checking for bad index");
         if (sources.size() <= e.index || e.index < 0) {
             System.out.println("\nEngine error: " +
                                errors.get(e.action) + " " +
@@ -98,7 +109,14 @@ public class Engine implements Runnable {
                 break;
             case CREATE:
                 try {
-                    double[] b = UGen.fileBuffer(e.input);
+                    String i = new File(e.input).getCanonicalFile().toString();
+                    double[] b;
+                    if(buffers.containsKey(i)) {
+                        b = buffers.get(i);
+                    } else {
+                        b = UGen.fileBuffer(e.input);
+                        buffers.put(i, b);
+                    }
                     StereoUGen u = new StereoUGen(b);
                     u.description = e.input;
                     sources.add(0, u);
@@ -130,15 +148,6 @@ public class Engine implements Runnable {
         }
     }
 
-    public int buffSize;
-    public int cardIndex;
-    public int sr;
-    public ArrayList<UGen> sources;
-    SourceDataLine sink;
-    public double master = 0.5;
-    double[][] ugenBuffers;
-    public SynchronousQueue<Exec> messages;
-
     public Engine(int card, int buffering, int sampleRate,
                   SynchronousQueue<Exec> m) {
         cardIndex = card;
@@ -146,6 +155,7 @@ public class Engine implements Runnable {
         sr = sampleRate;
         messages = m;
         sources = new ArrayList();
+        buffers = new Hashtable<String, double[]>();
     }
 
     public Engine(SynchronousQueue m) {
