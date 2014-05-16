@@ -1,6 +1,5 @@
 package org.noisesmith.noisespew;
 
-import javax.sound.sampled.Clip;
 import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -20,22 +19,29 @@ class NoiseSpew {
     public static void main( String[] args ) {
         try {
             if (false) {
-                Engine gen = new Engine();
-                StereoUGen sample = new StereoUGen();
-                sample.buffer = UGen.fileBuffer("example.wav");
-                gen.sources.add(sample);
-                Thread generator = new Thread(gen);
+                SynchronousQueue engineMessage = new SynchronousQueue();
+                Engine gen = new Engine(engineMessage);
+                Thread generator = new Thread(gen, "ENGINE");
                 generator.start();
+                double[] buf = UGen.fileBuffer("example.wav");
+                StereoUGen sample = new StereoUGen(buf);
+                sample.in(10.0);
+                sample.out(14.4);
+                sample.start();
+                gen.sources.add(sample);
+                Thread.sleep(20000);
+                sample.in(18.9);
+            } else {
+                System.out.println( "starting noise spew:" );
+                ArrayList<Command> commands = new ArrayList<Command>();
+                for(String arg : args) {
+                    Command c = new Command(CommandParser.Action.ADDSOURCE);
+                    c.source = arg;
+                    c.interactive = false;
+                    commands.add(c);
+                }
+                runInteractive(commands);
             }
-            System.out.println( "starting noise spew:" );
-            ArrayList<Command> commands = new ArrayList<Command>();
-            for(String arg : args) {
-                Command c = new Command(CommandParser.Action.ADDSOURCE);
-                c.source = arg;
-                c.interactive = false;
-                commands.add(c);
-            }
-            runInteractive(commands);
         } catch (Exception e) {
             System.err.println("in noise-spew " + e.getMessage());
             e.printStackTrace();
@@ -43,26 +49,31 @@ class NoiseSpew {
     }
 
     public static void runInteractive(ArrayList<Command> initial) {
-        SynchronousQueue<Command> queue = new SynchronousQueue();
+        SynchronousQueue<Command> commandMessage = new SynchronousQueue();
+        SynchronousQueue engineMessage = new SynchronousQueue();
+        Engine gen = new Engine(engineMessage);
+        Thread audio = new Thread(gen, "ENGINE");
+        audio.start();
         Thread looper = new Thread(new Runnable() {
                 @Override
                 public void run () {
                     try {
-                        loopWorker(queue);
+                        loopWorker(commandMessage, gen);
                     } catch (Exception e) {
                         System.out.println("error in NoiseSpew looper thread");
                         e.printStackTrace();
                     }
-                }});
+                }},
+            "COMMAND PARSER");
         looper.start();
         initial.forEach((c) -> {
-                try { queue.put(c);
+                try { commandMessage.put(c);
                 } catch (Exception e) {
                     System.out.println("error queing command");
                     e.printStackTrace();
                 }
             });
-        try {parse(System.in, queue);
+        try {parse(System.in, commandMessage);
         } catch (Exception e) {
             System.out.println("error in parse");
             e.printStackTrace();
@@ -97,12 +108,10 @@ class NoiseSpew {
             });
     }
 
-    public static void loopWorker( SynchronousQueue<Command> queue )
+    public static void loopWorker( SynchronousQueue<Command> queue, Engine gen )
         throws InterruptedException {
         BiMap<String> resources = new BiMap<String>();
-        ArrayList<Loop> loops = new ArrayList<Loop>();
         ArrayList<Command> commands = new ArrayList<Command>();
-        Loop loop;
         while (true) {
             Command parsed = queue.take();
             commands.add(parsed);
@@ -111,37 +120,25 @@ class NoiseSpew {
                 System.exit(0);
                 break;
             case LIST:
-                list(resources, loops);
+                list(resources, gen.sources);
+                // gen.messages.put(new Engine.Exec(Engine.Action.DEBUG));
                 break;
             case PLAYTOGGLE:
-                if (loops.size() > parsed.index) {
-                    loops.get(parsed.index).toggle();
-                } else {
-                    System.out.println("\ncould not toggle playback of " +
-                                       parsed.index);
-                }
+                gen.messages.put(new Engine.Exec(Engine.Action.TOGGLE,
+                                                 parsed.index));
                 break;
             case LOOPPOINTS:
-                if (loops.size() > parsed.index) {
-                    loop = loops.get(parsed.index);
-                    loop.start = parsed.start;
-                    loop.end = parsed.end;
-                    loop.start();
-                } else {
-                    System.out.println("could not reloop " + parsed.index);
-                }
+                gen.messages.put(new Engine.Exec(Engine.Action.LOOPPOINTS,
+                                                 parsed.index,
+                                                 parsed.start,
+                                                 parsed.end));
                 break;
             case ADDSOURCE:
                 resources.put(parsed.source);
                 break;
             case ADDLOOP:
-                try {
-                    loops.add(0, new Loop(resources.get(parsed.index)));
-                } catch (Exception e) {
-                    System.out.println("could not load loop: " +
-                                       parsed.index);
-                    e.printStackTrace();
-                }
+                gen.messages.put(new Engine.Exec(Engine.Action.CREATE,
+                                                 resources.get(parsed.index)));
                 break;
             case DELETESOURCE:
                 if(resources.containsKey(parsed.index)) {
@@ -151,12 +148,8 @@ class NoiseSpew {
                 }
                 break;
             case DELETELOOP:
-                if(loops.size() > parsed.index) {
-                    loops.get(parsed.index).stop();
-                    loops.remove(parsed.index);
-                } else {
-                    System.out.println("could not delete " + parsed.index);
-                }
+                gen.messages.put(new Engine.Exec(Engine.Action.DELETE,
+                                                 parsed.index));
                 break;
             case STORECOMMANDS:
                 try {
@@ -186,22 +179,22 @@ class NoiseSpew {
             if (parsed.interactive != null && parsed.interactive) {
                 prompt();
             } else {
-                list(resources, loops);
+                list(resources, gen.sources);
                 prompt();
             }
         }
     }
 
-    public static void list( BiMap<String> resources, ArrayList<Loop> loops) {
+    public static void list( BiMap<String> resources, ArrayList<UGen> loops) {
         System.out.println("\nresources:\n");
         resources.forEach((k, v) -> System.out.println(k + " : " + v));
         System.out.println("\nloops:\n");
-        BiMap<Loop> loopmap = new BiMap<Loop> (loops);
+        BiMap<UGen> loopmap = new BiMap<UGen> (loops);
         loopmap.forEach((i, l) -> {
                 String mesg;
-                mesg = i + " - " + (l.clip.isRunning() ? "on" : "off");
-                mesg += " " + l.start + "->" + l.end;
-                mesg +=  "	" + l.source;
+                mesg = i + " - " + (l.active ? "on" : "off");
+                mesg += " " + l.start / 44100.0 + "->" + l.end / 44100.0;
+                mesg +=  "	" + l.description;
                 System.out.println(mesg);
             });
     }
@@ -250,4 +243,3 @@ class NoiseSpew {
             });
     }
 }
-

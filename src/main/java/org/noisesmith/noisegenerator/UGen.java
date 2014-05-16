@@ -16,13 +16,74 @@ public class UGen {
     // looped
     public double[] buffer;
     public int phase = 0;
+    public int position = 0;
+    public double amp = 1.0;
+    public Boolean active = false;
+    public int start = 0;
+    public int end = 0;
+    public String description = "ugen";
+    
     double[] outBuffer;
+
+    void normalizePosition() {
+        int lower = Math.min(start, end);
+        int upper = Math.max(start, end);
+        if (position < lower) {
+            position = lower;
+            phase = 0;
+        } else if (position > upper) {
+            position = upper;
+            phase = upper - lower;
+        }
+    }
+
+    int getTarget( double where ) {
+        int target = (int) (where * 44100);
+        target = Math.min(target, buffer.length/2);
+        target = Math.max(target, 0);
+        return target;
+    }
+
+    public void in(double where) {
+        start = getTarget(where);
+        normalizePosition();
+    }
+
+    public void out(double where) {
+        end = getTarget(where);
+        normalizePosition();
+    }
+
+    public void toggle () {
+        active = !active;
+    }
+
+    public void stop () {
+        active = false;
+    }
+
+    public void start () {
+        active = true;
+    }
+
+    void updatePhase () {
+        int loopsize = (end > start) ? end - start : start - end;
+        int direction = (end > start) ? 1 : -1;
+        if(loopsize == 0) {
+            phase = 0;
+            position = 0;
+        } else {
+            phase = (phase + 1) % loopsize;
+            position = phase*direction+start;
+        }
+    }
 
     void fill ( int count ) {
         for(int i = 0; i < count; i += 2) {
-            outBuffer[i] = buffer[phase];
-            outBuffer[i+1] = buffer[phase];
-            phase = (phase + 1) % buffer.length;
+            double out = buffer[position]*amp;
+            outBuffer[i] = out;
+            outBuffer[i+1] = out;
+            updatePhase();
         }
     }
 
@@ -35,11 +96,27 @@ public class UGen {
         fill(count);
         return outBuffer;
     }
-    public UGen(int size) {
-        buffer = new double[size];
-        Arrays.fill(buffer, 0.0);
+
+    public UGen(double[] buf) {
+        buffer = buf;
+        amp = 1.0;
+        active = false;
+        start = 0;
+        end = buf.length/2;
         outBuffer = new double[0];
+        description = "unit generator";
     }
+
+    private static double[] empty(int size) {
+        double[] buf = new double[size];
+        Arrays.fill(buf, 0.0);
+        return buf;
+    }
+
+    public UGen(int size) {
+        this(empty(size));
+    }
+
     public UGen() {
         this(2048);
     }
