@@ -246,13 +246,6 @@ class CommandParser {
                 System.out.print("failed to parse command \"");
                 for(String token :  line) System.out.print(' ' + token);
                 System.out.println('"');
-                
-                for(String token : line) {
-                    for (byte b : token.getBytes()) {
-                        System.out.println("byte: " + (int)b);
-                    }
-                }
-                e.printStackTrace();
             }
             return new Command(Action.NULL);
         }
