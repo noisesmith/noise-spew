@@ -66,7 +66,7 @@ class NoiseSpew {
                 }},
             "COMMAND PARSER");
         looper.start();
-        initial.forEach((c) -> {
+        initial.forEach(c -> {
                 try { commandMessage.put(c);
                 } catch (Exception e) {
                     System.out.println("error queing command");
@@ -90,7 +90,7 @@ class NoiseSpew {
         BufferedReader in = new BufferedReader(source);
         long stamp = System.currentTimeMillis();
         prompt();
-        in.lines().forEachOrdered((s) -> {
+        in.lines().forEachOrdered(s -> {
                 try {
                     String[] input = s.split(" ");
                     Command parsed = CommandParser.parse(input);
@@ -222,7 +222,7 @@ class NoiseSpew {
                                      ArrayList<Command> commands)
         throws java.io.IOException {
         ArrayList<Command> cs = (ArrayList<Command>) commands.clone();
-        Predicate<Command> p = (c) ->
+        Predicate<Command> p = c ->
             c.action == CommandParser.Action.HELP ||
             c.action == CommandParser.Action.LIST;
         cs.removeIf(p);
@@ -236,15 +236,15 @@ class NoiseSpew {
         Command[] carray = Preset.load(source);
         List<Command> al = Arrays.asList(carray);
         ArrayList<Command> in = new ArrayList<Command>(al);
-        Predicate<Command> p = (c) ->
+        Predicate<Command> p = c ->
             c.action == CommandParser.Action.STORECOMMANDS ||
             c.action == CommandParser.Action.LIST;
         in.removeIf(p);
-        in.forEach((c) -> {
+        in.forEach(c -> {
                 c.moment += offset;
                 c.interactive = false;
             });
-        in.forEach((c) -> {
+        in.forEach(c -> {
                 Runnable r = new Runnable() {
                                     @Override
                                     public void run () {

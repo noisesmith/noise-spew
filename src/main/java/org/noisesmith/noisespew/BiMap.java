@@ -22,7 +22,7 @@ class BiMap<V> {
     public BiMap ( ArrayList<V> initVals ) {
         store = new Hashtable<Integer,V>();
         values = new Hashtable<V,Integer>();
-        initVals.forEach((v) -> put(v));
+        initVals.forEach(v -> put(v));
     }
 
     public int findIndex () {

@@ -148,17 +148,17 @@ class CommandParser {
     static final public EnumMap<Action,Function<String[],Command>>
         defaultParser = new EnumMap<Action,Function<String[],Command>>
         (CommandParser.Action.class) {{
-            put(Action.HELP, (s) -> {return new Command();});
-            put(Action.EXIT, (s) -> {return new Command();});
-            put(Action.LIST, (s) -> {return new Command();});
+            put(Action.HELP, s -> {return new Command();});
+            put(Action.EXIT, s -> {return new Command();});
+            put(Action.LIST, s -> {return new Command();});
             put(Action.PLAYTOGGLE,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     return c;
                 });
             put(Action.LOOPPOINTS,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     c.start = Double.parseDouble(s[1]);
@@ -166,64 +166,64 @@ class CommandParser {
                     return c;
                 });
             put(Action.ADDSOURCE,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.source = String.join(" ", s);
                     return c;
                 });
             put(Action.ADDLOOP,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     return c;
                 });
             put(Action.DELETESOURCE,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     return c;
                 });
             put(Action.DELETELOOP,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.index  = Integer.parseInt(s[0]);
                     return c;
                 });
             put(Action.STORECOMMANDS,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.destination = String.join(" ", s);
                     return c;
                 });
             put(Action.LOADCOMMANDS,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.source = String.join(" ", s);
                     return c;
                 });
             put(Action.AMPLITUDE,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     c.parameter = Double.parseDouble(s[1]);
                     return c;
                 });
             put(Action.RATE,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     c.parameter = Double.parseDouble(s[1]);
                     return c;
                 });
             put(Action.LOOPTYPE,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.index = Integer.parseInt(s[0]);
                     c.selection = Integer.parseInt(s[1]);
                     return c;
                 });
             put(Action.MASTER,
-                (s) -> {
+                s -> {
                     Command c = new Command();
                     c.parameter = Double.parseDouble(s[0]);
                     return c;

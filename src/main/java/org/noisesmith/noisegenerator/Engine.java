@@ -208,20 +208,22 @@ public class Engine implements Runnable {
             byte[] buffer = new byte[buffSize];
             ByteBuffer out = ByteBuffer.wrap(buffer);
             ugenBuffers = new double[0][];
-            ArrayList<UGen> resources;
+            UGen[] resources;
             double left, right;
             sink.start();
             while (true) {
                 respond(messages.poll());
-                resources = (ArrayList<UGen>) sources.clone();
-                resources.removeIf((u) -> !u.active);
-                int size = resources.size();
+                resources = (UGen[]) sources
+                    .stream()
+                    .filter(u -> u.active)
+                    .toArray();
+                int size = resources.length;
                 if(size > ugenBuffers.length) {
                     ugenBuffers = new double[size][];
                 } else {
                 }
                 for(int i = 0; i < size; i++) {
-                    ugenBuffers[i] = resources.get(i).gen(frames);
+                    ugenBuffers[i] = resources[i].gen(frames);
                 }
                 out.clear();
                 out.order(ByteOrder.LITTLE_ENDIAN);
