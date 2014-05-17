@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.concurrent.SynchronousQueue;
 import java.util.EnumMap;
 import java.util.Hashtable;
+import java.util.stream.Stream;
 import java.io.File;
 
 public class Engine implements Runnable {
@@ -207,32 +208,23 @@ public class Engine implements Runnable {
             int frames = dataCount / 2; // always stereo
             byte[] buffer = new byte[buffSize];
             ByteBuffer out = ByteBuffer.wrap(buffer);
-            ugenBuffers = new double[0][];
-            UGen[] resources;
             double left, right;
             sink.start();
             while (true) {
                 respond(messages.poll());
-                resources = (UGen[]) sources
+                ugenBuffers = sources
                     .stream()
                     .filter(u -> u.active)
-                    .toArray();
-                int size = resources.length;
-                if(size > ugenBuffers.length) {
-                    ugenBuffers = new double[size][];
-                } else {
-                }
-                for(int i = 0; i < size; i++) {
-                    ugenBuffers[i] = resources[i].gen(frames);
-                }
+                    .map(u -> u.gen(frames))
+                    .toArray(x -> new double[x][]);
                 out.clear();
                 out.order(ByteOrder.LITTLE_ENDIAN);
                 for(int i = 0; i < dataCount; i += 2) {
                     left = 0.0;
                     right = 0.0;
-                    for(int j = 0; j < size; j++) {
-                        left += ugenBuffers[j][i];
-                        right += ugenBuffers[j][i+1];
+                    for(double[] b : ugenBuffers) {
+                        left += b[i];
+                        right += b[i+1];
                     }
                     left = Math.min(left, 1.0);
                     left = Math.max(left, -1.0);
