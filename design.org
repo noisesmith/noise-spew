@@ -30,6 +30,8 @@ io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSyste
 ** TODO loop fade
 ** TODO removing unused embedded clips
 ** TODO make a recorder UGen
+** TODO delay line
+** TODO ugens with ugen input controlling parameters
 *** TODO linked list of arrays
     (increasing size, each double the prev) to record into, finally compact
 * DONE features
