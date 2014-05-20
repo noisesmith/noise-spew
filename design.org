@@ -85,3 +85,11 @@ io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSyste
    (idletask)
    any interface with n methods and n - 1 having a
    default implmenetation is a @FunctionalInterface for the nth method
+* conversion / refactoring
+** TODO changes to buffers in command loop, everything else in engine
+*** TODO put strings -> buffers map in the command loop
+*** TODO make a class for the data provided in control scope
+*** TODO make a class for the data provided in the audio engine scope
+*** TODO move all actions in the switch statment in loopWorker to methods
+*** TODO move all actions in the switch statment in Engine.respond to methods
+*** TODO eliminate the command enum and such from Engine, use the Command class
