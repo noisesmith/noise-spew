@@ -5,7 +5,7 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
-class BiMap<V> {
+public class BiMap<V> {
     // for now specializing on V <-> int
     public Hashtable<Integer,V> store;
 
