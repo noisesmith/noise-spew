@@ -10,7 +10,7 @@ import java.net.URL;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-class Preset {
+public class Preset {
     static ObjectMapper json = new ObjectMapper();
 
     public static Command[] load ( String in )
