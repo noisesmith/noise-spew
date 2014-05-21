@@ -18,50 +18,34 @@ import org.noisesmith.noisegenerator.DebugBytes;
 public class NoiseSpew {
     public static void main( String[] args ) {
         try {
-            if (false) {
-                ArrayBlockingQueue printerQueue = new ArrayBlockingQueue(1024);
-                SynchronousQueue engineMessage = new SynchronousQueue();
-                Engine gen = new Engine(engineMessage, printerQueue);
-                Thread generator = new Thread(gen, "ENGINE");
-                generator.start();
-                double[] buf = UGen.fileBuffer("example.wav");
-                StereoUGen sample = new StereoUGen(buf);
-                sample.in(10.0);
-                sample.out(14.4);
-                sample.start();
-                gen.sources.add(sample);
-                Thread.sleep(20000);
-                sample.in(18.9);
-            } else {
-                ArrayBlockingQueue printerQueue =
-                    new ArrayBlockingQueue<String>(1024);
-                Thread printer = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                while (true) {
-                                    String message =
-                                        (String) printerQueue.take();
-                                    System.out.println(message);
-                                }
-                            } catch (Exception e) {
-                                System.out.println("error in printer");
-                                e.printStackTrace();
+            ArrayBlockingQueue printerQueue =
+                new ArrayBlockingQueue<String>(1024);
+            Thread printer = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            while (true) {
+                                String message =
+                                    (String) printerQueue.take();
+                                System.out.print(message);
                             }
+                        } catch (Exception e) {
+                            System.out.println("error in printer");
+                            e.printStackTrace();
                         }
-                    }, "PRINTER");
-                printer.start();
-                printerQueue.put( "starting noise spew:" );
-                SynchronousQueue engineMessage = new SynchronousQueue();
-                ArrayList<Command> commands = new ArrayList<Command>();
-                // for(String arg : args) {
-                //     Command c = new Command(CommandParser.Action.ADDSOURCE);
-                //     c.source = arg;
-                //     c.interactive = false;
-                //     commands.add(c);
-                // }
-                runInteractive(commands, printerQueue);
-            }
+                    }
+                }, "PRINTER");
+            printer.start();
+            println(printerQueue, "starting noise spew:" );
+            SynchronousQueue engineMessage = new SynchronousQueue();
+            ArrayList<Command> commands = new ArrayList<Command>();
+            // for(String arg : args) {
+            //     Command c = new Command(CommandParser.Action.ADDSOURCE);
+            //     c.source = arg;
+            //     c.interactive = false;
+            //     commands.add(c);
+            // }
+            runInteractive(commands, printerQueue);
         } catch (Exception e) {
             System.err.println("in noise-spew " + e.getMessage());
             e.printStackTrace();
@@ -72,7 +56,7 @@ public class NoiseSpew {
                                       ArrayBlockingQueue<String> printerQueue) {
         SynchronousQueue<Command> commandMessage = new SynchronousQueue();
         SynchronousQueue<Command> engineMessage = new SynchronousQueue();
-        Engine gen = new Engine(engineMessage, printerQueue);
+        Engine gen = new Engine(engineMessage);
         Thread audio = new Thread(gen, "ENGINE");
         audio.start();
         Thread looper = new Thread(new Runnable() {
@@ -102,7 +86,23 @@ public class NoiseSpew {
         }
     }
 
-    public static String prompt = "\nnoise spew> ";
+    public static void print ( ArrayBlockingQueue<String> printerQueue,
+                               String s ) {
+        try {
+            printerQueue.put(s);
+        } catch (Exception e) {
+            System.out.println("error printing message: \"" + s + "\"");
+        }
+    }
+
+    public static void println ( ArrayBlockingQueue<String> printerQueue,
+                                 String s ) {
+        print(printerQueue, s + "\n");
+    }
+
+    public static void prompt ( ArrayBlockingQueue<String> printerQueue ) {
+        print(printerQueue, "\nnoise spew> ");
+    }
 
     public static void parse( CommandParser parser,
                               InputStream stream,
@@ -112,7 +112,7 @@ public class NoiseSpew {
         InputStreamReader source = new InputStreamReader(stream, "UTF-8");
         BufferedReader in = new BufferedReader(source);
         long stamp = System.currentTimeMillis();
-        try {printerQueue.put(prompt);} catch (Exception x) {}
+        prompt(printerQueue);
         in.lines().forEachOrdered(s -> {
                 try {
                     String[] input = s.split(" ");
@@ -122,11 +122,11 @@ public class NoiseSpew {
                     queue.put(parsed);
                 } catch (Exception e) {
                     if (s.matches("^\\s+$")) {
-                        try { printerQueue.put(prompt); } catch (Exception x) {}
+                        prompt(printerQueue);
                     } else {
                         try {
-                            printerQueue.put("error in parsing " + s);
-                            printerQueue.put(prompt);
+                            println(printerQueue, "error in parsing " + s);
+                        prompt(printerQueue);
                         } catch (Exception x) {}
                     }
                 }
@@ -153,16 +153,20 @@ public class NoiseSpew {
                                    Engine gen )
         throws InterruptedException {
         ControlEnv environment = new ControlEnv(queue, gen);
+        ArrayBlockingQueue<String> replies = new ArrayBlockingQueue(1024);
         String output;
         while (true) {
             Command parsed = queue.take();
+            parsed.replyTo = replies;
             if(parsed != null) {
                 environment.commands.add(parsed);
                 output = parsed.execute(environment);
-                if(output != null) printerQueue.put(output);
+                if(output != null) println(printerQueue, output);
                 gen.messages.put(parsed);
+                String engineResponse = replies.take();
+                print(printerQueue, engineResponse);
             }
-            printerQueue.put(prompt);
+            if(parsed.interactive) prompt(printerQueue);
         }
     }
 }

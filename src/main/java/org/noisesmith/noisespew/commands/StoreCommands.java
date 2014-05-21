@@ -5,14 +5,19 @@ import org.noisesmith.noisespew.Preset;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisegenerator.Engine;
 import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class StoreCommands extends Command {
     String destination;
 
+    public static final String name = "store commands";
+
     public static Function<String[], Command> parse = s -> new StoreCommands(s);
 
+    public StoreCommands(){};
     public StoreCommands (String[] args) {
         destination = String.join(" ", args);
     }
@@ -28,9 +33,23 @@ public class StoreCommands extends Command {
             Preset.store(carray, destination);
             return null;
         } catch (Exception e) {
+            e.printStackTrace();
             return "failed to store to " + destination;
         }
     }
-
     public String execute ( Engine.EngineEnv environment ) {return null;}
+
+    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
+        to.put("name", name);
+        to.put("destination", destination);
+        to.put("time", moment / 1000.0);
+        return to;
+    }
+    public static Function<Hashtable, Command> deserialize = from -> {
+        StoreCommands instance = new StoreCommands();
+        instance.destination = (String) from.get("destination");
+        instance.moment = (long) ((double) from.get("time"))*1000;
+        instance.interactive = false;
+        return instance;
+    };
 }

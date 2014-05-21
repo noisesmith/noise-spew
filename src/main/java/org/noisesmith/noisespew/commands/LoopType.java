@@ -5,6 +5,8 @@ import org.noisesmith.noisespew.NoiseSpew.ControlEnv;
 import org.noisesmith.noisegenerator.Engine.EngineEnv;
 import org.noisesmith.noisegenerator.UGen;
 import org.noisesmith.noisegenerator.Engine;
+import java.util.LinkedHashMap;
+import java.util.Hashtable;
 import java.util.function.Function;
 
 public class LoopType extends Command {
@@ -13,6 +15,9 @@ public class LoopType extends Command {
     int index;
     int selection;
 
+    public static final String name = "loop type";
+
+    public LoopType(){}
     public LoopType (String[] args) {
         index = Integer.parseInt(args[0]);
         selection = Integer.parseInt(args[1]);
@@ -42,4 +47,20 @@ public class LoopType extends Command {
             return null;
         }
     }
+
+    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
+        to.put("name", name);
+        to.put("index", index);
+        to.put("selection", selection);
+        to.put("time", moment / 1000.0);
+        return to;
+    }
+    public static Function<Hashtable, Command> deserialize = from -> {
+        LoopType instance = new LoopType();
+        instance.index = (int) from.get("index");
+        instance.selection = (int) from.get("selection");
+        instance.moment = (long) ((double) from.get("time"))*1000;
+        instance.interactive = false;
+        return instance;
+    };
 }

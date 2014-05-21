@@ -24,7 +24,6 @@ public class Engine implements Runnable {
     SourceDataLine sink;
     double[][] ugenBuffers;
     public SynchronousQueue<Command> messages;
-    public ArrayBlockingQueue<String> replies;
 
     public static String badIndex(int index, String s, ArrayList<UGen> src) {
         if (src.size() <= index || index < 0) {
@@ -51,18 +50,16 @@ public class Engine implements Runnable {
     }
 
     public Engine(int card, int buffering, int sampleRate,
-                  SynchronousQueue<Command> m,
-                  ArrayBlockingQueue<String> p) {
+                  SynchronousQueue<Command> m) {
         cardIndex = card;
         buffSize = buffering*4;
         sr = sampleRate;
         messages = m;
-        replies = p;
         sources = new ArrayList();
     }
 
-    public Engine(SynchronousQueue m, ArrayBlockingQueue p) {
-        this(0, 2048, 44100, m, p);
+    public Engine(SynchronousQueue m) {
+        this(0, 2048, 44100, m);
     }
 
     public void run () {
@@ -80,7 +77,8 @@ public class Engine implements Runnable {
                 Command toRun = messages.poll();
                 if (toRun != null) {
                     result = toRun.execute(environment);
-                    if(result != null) replies.put(result);
+                    result = (result == null) ? "" : result;
+                    if(toRun.replyTo != null) toRun.replyTo.put(result);
                 }
                 ugenBuffers = sources
                     .stream()

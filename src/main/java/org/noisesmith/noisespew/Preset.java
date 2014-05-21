@@ -9,9 +9,12 @@ import java.io.FileOutputStream;
 import java.net.URL;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 public class Preset {
     static ObjectMapper json = new ObjectMapper();
+    static CommandParser parser = new CommandParser();
 
     public static Command[] load ( String in )
         throws java.io.IOException,
@@ -31,15 +34,10 @@ public class Preset {
         return commands;
     }
 
-    public static void store ( Command[] commands, String destination )
-        throws java.io.IOException,
-               java.io.FileNotFoundException {
-        store(commands, new File(destination));
-    }
-
     public static Command[] load ( InputStream in )
         throws java.io.IOException {
-        Command[] commands = json.readValue(in, Command[].class);
+        Hashtable[] raw = json.readValue(in, Hashtable[].class);
+        Command[] commands = parser.deserialize(raw);
         return commands;
     }
 
@@ -56,7 +54,14 @@ public class Preset {
 
     public static void store ( Command[] commands, OutputStream destination )
         throws java.io.IOException {
-        json.writeValue(destination, commands);
+        LinkedHashMap[] raw = parser.serialize(commands);
+        json.writeValue(destination, raw);
+    }
+
+    public static void store ( Command[] commands, String destination )
+        throws java.io.IOException,
+               java.io.FileNotFoundException {
+        store(commands, new File(destination));
     }
 
     public static void store ( Command[] commands, File destination )

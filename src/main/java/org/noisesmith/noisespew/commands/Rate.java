@@ -4,6 +4,8 @@ import org.noisesmith.noisespew.Command;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisespew.NoiseSpew.ControlEnv;
 import org.noisesmith.noisegenerator.Engine;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.function.Function;
 
 public class Rate extends Command {
@@ -12,6 +14,9 @@ public class Rate extends Command {
     int index;
     double rate;
 
+    public static final String name = "rate";
+
+    public Rate(){};
     public Rate (String[] args) {
         index = Integer.parseInt(args[0]);
         rate = Double.parseDouble(args[1]);
@@ -30,4 +35,19 @@ public class Rate extends Command {
             return null;
         }
     }
+    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
+        to.put("name", name);
+        to.put("index", index);
+        to.put("rate", rate);
+        to.put("time", moment / 1000.0);
+        return to;
+    }
+    public static Function<Hashtable, Command> deserialize = from -> {
+        Rate instance = new Rate();
+        instance.index = (int) from.get("index");
+        instance.rate = (double) from.get("rate");
+        instance.moment = (long) ((double) from.get("time"))*1000;
+        instance.interactive = false;
+        return instance;
+    };
 }
