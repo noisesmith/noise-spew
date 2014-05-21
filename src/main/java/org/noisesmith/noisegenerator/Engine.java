@@ -78,7 +78,14 @@ public class Engine implements Runnable {
                 if (toRun != null) {
                     result = toRun.execute(environment);
                     result = (result == null) ? "" : result;
-                    if(toRun.replyTo != null) toRun.replyTo.put(result);
+                    if(toRun.replyTo != null) {
+                        try {
+                            toRun.replyTo.add(result);
+                        } catch (Exception e) {
+                            System.out.println("status queue error");
+                            e.printStackTrace();
+                        }
+                    }
                 }
                 ugenBuffers = sources
                     .stream()
