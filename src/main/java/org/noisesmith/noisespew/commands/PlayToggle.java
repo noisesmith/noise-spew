@@ -40,7 +40,8 @@ public class PlayToggle extends Command {
     public static Function<Hashtable, Command> deserialize = from -> {
         PlayToggle instance = new PlayToggle();
         instance.index = (int) from.get("index");
-        instance.moment = (long) ((double) from.get("time"))*1000;
+        double time = (double) from.get("time");
+        instance.moment = (long) (time*1000);
         instance.interactive = false;
         return instance;
     };

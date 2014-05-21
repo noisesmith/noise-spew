@@ -8,7 +8,7 @@ import org.noisesmith.noisespew.NoiseSpew.ControlEnv;
 import org.noisesmith.noisegenerator.Engine.EngineEnv;
 import java.util.function.Function;
 
-public abstract class Command {
+public abstract class Command implements Comparable<Command>{
     public long moment;
     public Boolean interactive;
     public ArrayBlockingQueue<String> replyTo;
@@ -20,4 +20,11 @@ public abstract class Command {
 
     public abstract LinkedHashMap serialize(LinkedHashMap<String,Object> to);
     public static Function<Hashtable, Command> deserialize;
+
+    @Override
+    public int compareTo(Command other){
+        return (this.moment == other.moment) ?
+            0 : (this.moment > other.moment) ?
+            1 : -1;
+    }    
 }

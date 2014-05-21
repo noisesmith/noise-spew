@@ -46,7 +46,8 @@ public class Rate extends Command {
         Rate instance = new Rate();
         instance.index = (int) from.get("index");
         instance.rate = (double) from.get("rate");
-        instance.moment = (long) ((double) from.get("time"))*1000;
+        double time = (double) from.get("time");
+        instance.moment = (long) (time*1000);
         instance.interactive = false;
         return instance;
     };

@@ -33,7 +33,8 @@ public class AddSource extends Command {
     public static Function<Hashtable, Command> deserialize = from -> {
         AddSource instance = new AddSource();
         instance.source = (String) from.get("source");
-        instance.moment = (long) ((double) from.get("time"))*1000;
+        double time = (double) from.get("time");
+        instance.moment = (long) (time*1000);
         instance.interactive = false;
         return instance;
     };

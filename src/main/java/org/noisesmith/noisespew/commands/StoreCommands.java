@@ -48,7 +48,8 @@ public class StoreCommands extends Command {
     public static Function<Hashtable, Command> deserialize = from -> {
         StoreCommands instance = new StoreCommands();
         instance.destination = (String) from.get("destination");
-        instance.moment = (long) ((double) from.get("time"))*1000;
+        double time = (double) from.get("time");
+        instance.moment = (long) (time*1000);
         instance.interactive = false;
         return instance;
     };

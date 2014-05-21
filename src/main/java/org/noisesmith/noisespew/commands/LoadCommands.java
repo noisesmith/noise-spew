@@ -9,7 +9,9 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Collections;
 import java.util.function.Function;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
 public class LoadCommands extends Command {
@@ -42,28 +44,22 @@ public class LoadCommands extends Command {
                 c.moment += offset;
                 c.interactive = false;
             });
-            in.sort(new java.util.Comparator() {
-                    public int compare(Object a, Object b) {
-                        return (((Command) a).moment == ((Command) b).moment) ?
-                            0 : (((Command) a).moment > ((Command) b).moment) ?
-                            1 : -1;
-                    }    
-                });
-            Command last = in.get(0);
+            Collections.sort(in);
+            BinaryOperator<Command> reducer = (last, c) -> {
+                try {
+                    Thread.sleep(c.moment - last.moment);
+                    environment.in.put(c);
+                } catch (Exception e) {
+                    System.out.println("error loading " + c + " " + "<" +
+                                       c.moment + ">");
+                    e.printStackTrace();
+                }
+                return c;
+            };
             Runnable r = new Runnable() {
                     @Override
                     public void run () {
-                            in.forEach(c -> {
-                                    try {
-                                        Thread.sleep(c.moment - last.moment);
-                                        environment.in.put(c);
-                                    } catch (Exception e) {
-                                        System.out.println("error loading " +
-                                                           c + " " + "<" +
-                                                           c.moment + ">");
-                                        e.printStackTrace();
-                                    }
-                                });
+                        in.stream().reduce(in.get(0), reducer);
                     }
                 };
             new Thread(r, "command-" + source).start();
@@ -97,7 +93,8 @@ public class LoadCommands extends Command {
         LoadCommands instance = new LoadCommands();
         instance.source = (String) from.get("source");
         instance.offset = (long) from.get("offset");
-        instance.moment = (long) ((double) from.get("time"))*1000;
+        double time = (double) from.get("time");
+        instance.moment = (long) (time*1000);
         instance.interactive = false;
         return instance;
     };

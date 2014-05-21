@@ -59,7 +59,8 @@ public class LoopType extends Command {
         LoopType instance = new LoopType();
         instance.index = (int) from.get("index");
         instance.selection = (int) from.get("selection");
-        instance.moment = (long) ((double) from.get("time"))*1000;
+        double time = (double) from.get("time");
+        instance.moment = (long) (time*1000);
         instance.interactive = false;
         return instance;
     };

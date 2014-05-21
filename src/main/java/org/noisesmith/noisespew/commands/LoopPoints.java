@@ -55,7 +55,8 @@ public class LoopPoints extends Command {
         instance.index = (int) from.get("index");
         instance.start = (double) from.get("start");
         instance.end = (double) from.get("end");
-        instance.moment = (long) ((double) from.get("time"))*1000;
+        double time = (double) from.get("time");
+        instance.moment = (long) (time*1000);
         instance.interactive = false;
         return instance;
     };

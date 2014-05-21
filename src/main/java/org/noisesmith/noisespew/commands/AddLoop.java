@@ -58,7 +58,8 @@ public class AddLoop extends Command {
         AddLoop instance = new AddLoop();
         instance.index = (int) from.get("index");
         instance.source = (String) from.get("source");
-        instance.moment = (long) ((double) from.get("time"))*1000;
+        double time = (double) from.get("time");
+        instance.moment = (long) (time*1000);
         instance.interactive = false;
         return instance;
     };
