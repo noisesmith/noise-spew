@@ -82,7 +82,7 @@ public class Engine implements Runnable {
                         try {
                             toRun.replyTo.add(result);
                         } catch (Exception e) {
-                            System.out.println("status queue error");
+                            System.out.println("engine reply queue error");
                             e.printStackTrace();
                         }
                     }
