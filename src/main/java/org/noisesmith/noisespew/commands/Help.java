@@ -28,8 +28,8 @@ public class Help extends Command implements Command.ICommand {
                 helpstring
                     .append(" -- ")
                     .append(command.getName())
-                    .append('(')
-                    .append(command.getArgs())
+                    .append(" (")
+                    .append(String.join(", ", command.getArgs()))
                     .append(")\n")
                     .append(command.getHelp());
             });
