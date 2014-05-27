@@ -1,7 +1,7 @@
 [{"name":"master volume",
   "amp":3.0,
   "time":0.0},
-  {"name":"add source",
+ {"name":"add source",
   "source":"example.wav",
   "time":0.0},
  {"name":"add loop",

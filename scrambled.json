@@ -31,7 +31,6 @@
   "start":9.4,
   "end":10.11,
   "time":7.0},
-{"name":"add source",
+ {"name":"add source",
   "source":"example.wav",
-  "time":0.0}
- ]
+  "time":0.0}]
