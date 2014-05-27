@@ -5,18 +5,22 @@ import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisespew.NoiseSpew.ControlEnv;
 import org.noisesmith.noisegenerator.Engine;
 import org.noisesmith.noisegenerator.UGen;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 
-public class LoopPoints extends Command {
+public class LoopPoints extends Command implements Command.ICommand {
     int index;
     double start;
     double end;
 
-    public static final String name = "loop points";
+    public String getName() {return "loop points";}
+    public String[] getInvocations() {return new String[] {"x"};}
+    public String[] getArgs() {return new String[] {"index", "start", "end"};}
+    public String getHelp() {return "set loop points for loop <index>";}
 
-    public static Function<String[], Command> parse = s -> new LoopPoints(s);
+    public Function<String[], Command> getParser() {
+        return s -> new LoopPoints(s);
+    }
 
     public LoopPoints(){};
     public LoopPoints (String[] args) {
@@ -41,23 +45,25 @@ public class LoopPoints extends Command {
             return null;
         }
     }
-    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
-        to.put("name", name);
+    public Map serialize(Map<String,Object> to) {
+        to.put("name", getName());
         to.put("index", index);
         to.put("start", start);
         to.put("end", end);
-        to.put("time", moment / 1000.0);
+        to.put("time", getMoment() / 1000.0);
         return to;
     }
 
-    public static Function<Hashtable, Command> deserialize = from -> {
-        LoopPoints instance = new LoopPoints();
-        instance.index = (int) from.get("index");
-        instance.start = (double) from.get("start");
-        instance.end = (double) from.get("end");
-        double time = (double) from.get("time");
-        instance.moment = (long) (time*1000);
-        instance.interactive = false;
-        return instance;
-    };
+    public Function<Map, Command> getDeserializer () {
+        return from -> {
+            LoopPoints instance = new LoopPoints();
+            instance.index = (int) from.get("index");
+            instance.start = (double) from.get("start");
+            instance.end = (double) from.get("end");
+            double time = (double) from.get("time");
+            instance.setMoment((long) (time*1000));
+            instance.setInteractive(false);
+            return instance;
+        };
+    }
 }

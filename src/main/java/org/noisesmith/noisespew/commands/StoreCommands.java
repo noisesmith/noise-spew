@@ -5,17 +5,21 @@ import org.noisesmith.noisespew.Preset;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisegenerator.Engine;
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class StoreCommands extends Command {
+public class StoreCommands extends Command implements Command.ICommand {
     String destination;
 
-    public static final String name = "store commands";
+    public String getName() {return "store commands";}
 
-    public static Function<String[], Command> parse = s -> new StoreCommands(s);
+    public Function<String[], Command> getParser() {
+        return s -> new StoreCommands(s);
+    }
+    public String[] getInvocations() {return new String[] {"J"};}
+    public String[] getArgs() {return new String[]{"file"};}
+    public String getHelp() {return "save json data of all commands to <file>";}
 
     public StoreCommands(){};
     public StoreCommands (String[] args) {
@@ -23,9 +27,10 @@ public class StoreCommands extends Command {
     }
 
     public String execute ( NoiseSpew.ControlEnv environment ) {
-        ArrayList<Command> commands = environment.commands;
-        ArrayList<Command> cs = (ArrayList<Command>) commands.clone();
-        Predicate<Command> p = c ->
+        ArrayList<Command.ICommand> commands = environment.commands;
+        ArrayList<Command.ICommand> cs =
+            (ArrayList<Command.ICommand>) commands.clone();
+        Predicate<Command.ICommand> p = c ->
             c instanceof Help || c instanceof ListStatus;
         cs.removeIf(p);
         Command[] carray = cs.toArray(new Command[0]);
@@ -39,18 +44,20 @@ public class StoreCommands extends Command {
     }
     public String execute ( Engine.EngineEnv environment ) {return null;}
 
-    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
-        to.put("name", name);
+    public Map serialize(Map<String,Object> to) {
+        to.put("name", getName());
         to.put("destination", destination);
-        to.put("time", moment / 1000.0);
+        to.put("time", getMoment() / 1000.0);
         return to;
     }
-    public static Function<Hashtable, Command> deserialize = from -> {
-        StoreCommands instance = new StoreCommands();
-        instance.destination = (String) from.get("destination");
-        double time = (double) from.get("time");
-        instance.moment = (long) (time*1000);
-        instance.interactive = false;
-        return instance;
-    };
+    public Function<Map, Command> getDeserializer () {
+        return from -> {
+            StoreCommands instance = new StoreCommands();
+            instance.destination = (String) from.get("destination");
+            double time = (double) from.get("time");
+            instance.setMoment((long) (time*1000));
+            instance.setInteractive(false);
+            return instance;
+        };
+    }
 }

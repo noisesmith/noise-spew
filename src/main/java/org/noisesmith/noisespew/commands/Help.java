@@ -5,46 +5,51 @@ import org.noisesmith.noisespew.CommandParser;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisegenerator.Engine;
 import java.util.function.Function;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class Help extends Command {
-    public static Function<String[], Command> parse = s -> new Help(s);
-
-    static public final String name = "help";
+public class Help extends Command implements Command.ICommand {
+    public Function<String[], Command> getParser() {
+        return s -> new Help(s);
+    }
+    public String getName() {return "help";}
+    public String[] getInvocations() {return new String[] {"h", "H", "?"};}
+    public String[] getArgs() {return new String[0];}
+    public String getHelp() {return "show this help message";}
 
     public Help () {}
     public Help ( String[] args ) {}
 
     public String execute( NoiseSpew.ControlEnv environment ) {
         StringBuilder helpstring = new StringBuilder();
-        new CommandParser().commands.forEach(reg -> {
+        new CommandParser().commands.forEach(command -> {
                 helpstring.append("\n\n");
-                for(String invocation : reg.invoke)
+                for(String invocation : command.getInvocations())
                     helpstring.append(" >").append(invocation);
                 helpstring
                     .append(" -- ")
-                    .append(reg.name)
+                    .append(command.getName())
                     .append('(')
-                    .append(reg.formals)
+                    .append(command.getArgs())
                     .append(")\n")
-                    .append(reg.description);
+                    .append(command.getHelp());
             });
         return helpstring.toString();
     }
 
     public String execute( Engine.EngineEnv environment ) {return null;}
 
-    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
-        to.put("name", name);
-        to.put("time", moment / 1000.0);
+    public Map serialize(Map<String,Object> to) {
+        to.put("name", getName());
+        to.put("time", getMoment() / 1000.0);
         return to;
     }
-    public static Function<Hashtable, Command> deserialize = from -> {
-        Help instance = new Help();
-        double time = (double) from.get("time");
-        instance.moment = (long) (time*1000);
-        instance.interactive = false;
-        return instance;
-    };
+    public Function<Map, Command> getDeserializer() {
+        return from -> {
+            Help instance = new Help();
+            double time = (double) from.get("time");
+            instance.setMoment((long) (time*1000));
+            instance.setInteractive(false);
+            return instance;
+        };
+    }
 }

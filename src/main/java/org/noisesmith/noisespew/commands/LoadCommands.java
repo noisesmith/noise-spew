@@ -6,21 +6,25 @@ import org.noisesmith.noisespew.NoiseSpew.ControlEnv;
 import org.noisesmith.noisegenerator.Engine.EngineEnv;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Collections;
 import java.util.function.Function;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
-public class LoadCommands extends Command {
+public class LoadCommands extends Command implements Command.ICommand {
     String source;
     long offset;
 
-    public static final String name = "load commands";
+    public Function<String[], Command> getParser() {
+        return s -> new LoadCommands(s);
+    }
 
-    public static Function<String[], Command> parse = s -> new LoadCommands(s);
+    public String getName() {return "load commands";}
+    public String[] getInvocations() {return new String[] {"j"};}
+    public String[] getArgs() {return new String[]{"file"};}
+    public String getHelp() {return "replay commands from json file <file>";}
 
     public LoadCommands() {
     }
@@ -41,17 +45,18 @@ public class LoadCommands extends Command {
                 || c instanceof Null;
             in.removeIf(p);
             in.forEach(c -> {
-                c.moment += offset;
-                c.interactive = false;
-            });
+                    c.offset(offset);
+                    c.setInteractive(false);
+                });
             Collections.sort(in);
             BinaryOperator<Command> reducer = (last, c) -> {
                 try {
-                    Thread.sleep(c.moment - last.moment);
+                    Thread.sleep(c.getMoment() - last.getMoment());
                     environment.in.put(c);
                 } catch (Exception e) {
-                    System.out.println("error loading " + c + " " + "<" +
-                                       c.moment + ">");
+                    System.out.println("error loading " +
+                                       ((Command.ICommand) c).getName() + " " +
+                                       "<" + c.getMoment() + ">");
                     e.printStackTrace();
                 }
                 return c;
@@ -82,20 +87,22 @@ public class LoadCommands extends Command {
     }
     public String execute ( EngineEnv environment ) {return null;}
 
-    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
-        to.put("name", name);
+    public Map serialize(Map<String,Object> to) {
+        to.put("name", getName());
         to.put("source", source);
         to.put("offset", offset);
-        to.put("time", moment / 1000.0);
+        to.put("time", getMoment() / 1000.0);
         return to;
     }
-    public static Function<Hashtable, Command> deserialize = from -> {
-        LoadCommands instance = new LoadCommands();
-        instance.source = (String) from.get("source");
-        instance.offset = (long) from.get("offset");
-        double time = (double) from.get("time");
-        instance.moment = (long) (time*1000);
-        instance.interactive = false;
-        return instance;
-    };
+    public Function<Map, Command> getDeserializer() {
+        return from -> {
+            LoadCommands instance = new LoadCommands();
+            instance.source = (String) from.get("source");
+            instance.offset = (long) from.get("offset");
+            double time = (double) from.get("time");
+            instance.setMoment((long) (time*1000));
+            instance.setInteractive(false);
+            return instance;
+        };
+    }
 }

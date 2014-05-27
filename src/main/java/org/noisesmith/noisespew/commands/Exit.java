@@ -3,14 +3,16 @@ package org.noisesmith.noisespew.commands;
 import org.noisesmith.noisespew.Command;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisegenerator.Engine;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 
-public class Exit extends Command {
-    public static Function<String[], Command> parse = s -> new Exit(s);
+public class Exit extends Command implements Command.ICommand {
+    public Function<String[], Command> getParser() {return s -> new Exit(s);}
 
-    public static final String name = "exit";
+    public String[] getInvocations() {return new String[] {"q", "Q", "e"};}
+    public String getName() {return "exit";}
+    public String[] getArgs() {return new String[0];}
+    public String getHelp() {return "exit now";}
 
     public Exit(){};
     public Exit ( String[] args ) {
@@ -22,16 +24,18 @@ public class Exit extends Command {
     }
 
     public String execute ( Engine.EngineEnv environment ) {return null;}
-    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
-        to.put("name", name);
-        to.put("time", moment / 1000.0);
+    public Map serialize(Map<String,Object> to) {
+        to.put("name", getName());
+        to.put("time", getMoment() / 1000.0);
         return to;
     }
-    public static Function<Hashtable, Command> deserialize = from -> {
-        Exit instance = new Exit();
-        double time = (double) from.get("time");
-        instance.moment = (long) (time*1000);
-        instance.interactive = false;
-        return instance;
-    };
+    public Function<Map, Command> getDeserializer() {
+        return from -> {
+            Exit instance = new Exit();
+            double time = (double) from.get("time");
+            instance.setMoment((long) (time*1000));
+            instance.setInteractive(false);
+            return instance;
+        };
+    }
 }

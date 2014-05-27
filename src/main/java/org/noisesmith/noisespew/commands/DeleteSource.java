@@ -3,16 +3,21 @@ package org.noisesmith.noisespew.commands;
 import org.noisesmith.noisespew.Command;
 import org.noisesmith.noisespew.NoiseSpew.ControlEnv;
 import org.noisesmith.noisegenerator.Engine.EngineEnv;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 
-public class DeleteSource extends Command {
-    public static Function<String[], Command> parse = s -> new DeleteSource(s);
-
-    public static final String name = "delete source";
-
+public class DeleteSource extends Command implements Command.ICommand {
     int index;
+
+    public Function<String[], Command> getParser() {
+        return s -> new DeleteSource(s);
+    }
+
+    public String getName() {return "delete source";}
+    public String[] getInvocations() {return new String[] {"d"};}
+    public String[] getArgs() {return new String[] {"index"};}
+    public String getHelp() {return "delete source <index>";}
+
 
     public DeleteSource(){};
     public DeleteSource (String[] args) {
@@ -29,18 +34,20 @@ public class DeleteSource extends Command {
     }
 
     public String execute ( EngineEnv environment ) { return null; }
-    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
-        to.put("name", name);
+    public Map serialize(Map<String,Object> to) {
+        to.put("name", getName());
         to.put("index", index);
-        to.put("time", moment / 1000.0);
+        to.put("time", getMoment() / 1000.0);
         return to;
     }
-    public static Function<Hashtable, Command> deserialize = from -> {
-        DeleteSource instance = new DeleteSource();
-        instance.index = (int) from.get("index");
-        double time = (double) from.get("time");
-        instance.moment = (long) (time*1000);
-        instance.interactive = false;
-        return instance;
-    };
+    public Function<Map, Command> getDeserializer () {
+        return from -> {
+            DeleteSource instance = new DeleteSource();
+            instance.index = (int) from.get("index");
+            double time = (double) from.get("time");
+            instance.setMoment((long) (time*1000));
+            instance.setInteractive(false);
+            return instance;
+        };
+    }
 }

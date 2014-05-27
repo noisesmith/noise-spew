@@ -5,18 +5,23 @@ import org.noisesmith.noisespew.NoiseSpew.ControlEnv;
 import org.noisesmith.noisegenerator.Engine.EngineEnv;
 import org.noisesmith.noisegenerator.UGen;
 import org.noisesmith.noisegenerator.Engine;
-import java.util.LinkedHashMap;
-import java.util.Hashtable;
+import java.util.Map;
 import java.util.function.Function;
 
-public class LoopType extends Command {
-    public static Function<String[], Command> parse = s -> new LoopType(s);
-
+public class LoopType extends Command implements Command.ICommand {
     int index;
     int selection;
 
-    public static final String name = "loop type";
+    public Function<String[], Command> getParser() {
+        return s -> new LoopType(s);
+    }
 
+    public String getName() {return "loop type";}
+    public String[] getInvocations() {return new String[]{"t"};}
+    public String[] getArgs() {return new String[]{"index", "type"};}
+    public String getHelp() {
+        return "set looping 0=normal 1=pingpong 2=oneshot";
+    }
     public LoopType(){}
     public LoopType (String[] args) {
         index = Integer.parseInt(args[0]);
@@ -48,20 +53,22 @@ public class LoopType extends Command {
         }
     }
 
-    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
-        to.put("name", name);
+    public Map serialize(Map<String,Object> to) {
+        to.put("name", getName());
         to.put("index", index);
         to.put("selection", selection);
-        to.put("time", moment / 1000.0);
+        to.put("time", getMoment() / 1000.0);
         return to;
     }
-    public static Function<Hashtable, Command> deserialize = from -> {
-        LoopType instance = new LoopType();
-        instance.index = (int) from.get("index");
-        instance.selection = (int) from.get("selection");
-        double time = (double) from.get("time");
-        instance.moment = (long) (time*1000);
-        instance.interactive = false;
-        return instance;
-    };
+    public Function<Map, Command> getDeserializer() {
+        return from -> {
+            LoopType instance = new LoopType();
+            instance.index = (int) from.get("index");
+            instance.selection = (int) from.get("selection");
+            double time = (double) from.get("time");
+            instance.setMoment((long) (time*1000));
+            instance.setInteractive(false);
+            return instance;
+        };
+    }
 }

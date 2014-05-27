@@ -4,15 +4,21 @@ import org.noisesmith.noisespew.Command;
 import org.noisesmith.noisespew.NoiseSpew.ControlEnv;
 import org.noisesmith.noisegenerator.Engine.EngineEnv;
 import java.util.function.Function;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class Master extends Command {
-    public static Function<String[], Command> parse = s -> new Master(s);
-
+public class Master extends Command implements Command.ICommand {
     double amp;
 
-    public static final String name = "master volume";
+    public Function<String[], Command> getParser() {
+        return s -> new Master(s);
+    }
+
+    public String getName() {return "master volume";}
+    public String[] getInvocations() {return new String[]{"V"};}
+    public String[] getArgs() {return new String[] {"amp"};}
+    public String getHelp() {
+        return "set master amplitude factor for all audio";
+    }
 
     public Master() {};
     public Master (String[] args) {
@@ -26,18 +32,20 @@ public class Master extends Command {
         return null;
     }
 
-    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
-        to.put("name", name);
+    public Map serialize(Map<String,Object> to) {
+        to.put("name", getName());
         to.put("amp", amp);
-        to.put("time", moment / 1000.0);
+        to.put("time", getMoment() / 1000.0);
         return to;
     }
-    public static Function<Hashtable, Command> deserialize = from -> {
-        Master instance = new Master();
-        instance.amp = (double) from.get("amp");
-        double time = (double) from.get("time");
-        instance.moment = (long) (time*1000);
-        instance.interactive = false;
-        return instance;
-    };
+    public Function<Map, Command> getDeserializer() {
+        return from -> {
+            Master instance = new Master();
+            instance.amp = (double) from.get("amp");
+            double time = (double) from.get("time");
+            instance.setMoment((long) (time*1000));
+            instance.setInteractive(false);
+            return instance;
+        };
+    }
 }

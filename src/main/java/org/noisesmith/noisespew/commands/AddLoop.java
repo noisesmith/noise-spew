@@ -5,17 +5,21 @@ import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisegenerator.Engine;
 import org.noisesmith.noisegenerator.UGen;
 import org.noisesmith.noisegenerator.StereoUGen;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.io.File;
 
-public class AddLoop extends Command {
+public class AddLoop extends Command implements Command.ICommand {
     int index;
     String source;
-    public static final String name = "add loop";
+    public String getName() {return "add loop";}
+    public String[] getInvocations() {return new String[] {"a"};}
+    public String[] getArgs() {return new String[] {"index"};}
+    public String getHelp() {return "create a loop for source <index>";}
 
-    public static Function<String[], Command> parse = s -> new AddLoop(s);
+    public Function<String[], Command> getParser() {
+        return s -> new AddLoop(s);
+    }
 
     public AddLoop(){};
     public AddLoop (String[] args) {
@@ -47,20 +51,22 @@ public class AddLoop extends Command {
             return null;
         }
     }
-    public LinkedHashMap serialize(LinkedHashMap<String,Object> to) {
-        to.put("name", name);
+    public Map serialize(Map<String,Object> to) {
+        to.put("name", getName());
         to.put("index", index);
         to.put("source", source);
-        to.put("time", moment / 1000.0);
+        to.put("time", getMoment() / 1000.0);
         return to;
     }
-    public static Function<Hashtable, Command> deserialize = from -> {
-        AddLoop instance = new AddLoop();
-        instance.index = (int) from.get("index");
-        instance.source = (String) from.get("source");
-        double time = (double) from.get("time");
-        instance.moment = (long) (time*1000);
-        instance.interactive = false;
-        return instance;
-    };
+    public Function<Map, Command> getDeserializer () {
+        return from -> {
+            AddLoop instance = new AddLoop();
+            instance.index = (int) from.get("index");
+            instance.source = (String) from.get("source");
+            double time = (double) from.get("time");
+            instance.setMoment((long) (time*1000));
+            instance.setInteractive(false);
+            return instance;
+        };
+    }
 }
