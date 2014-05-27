@@ -23,7 +23,7 @@ public class Engine implements Runnable {
     public ArrayList<UGen> sources;
     SourceDataLine sink;
     double[][] ugenBuffers;
-    public SynchronousQueue<Command> messages;
+    public SynchronousQueue<Command.ICommand> messages;
 
     public static String badIndex(int index, String s, ArrayList<UGen> src) {
         if (src.size() <= index || index < 0) {
@@ -50,7 +50,7 @@ public class Engine implements Runnable {
     }
 
     public Engine(int card, int buffering, int sampleRate,
-                  SynchronousQueue<Command> m) {
+                  SynchronousQueue<Command.ICommand> m) {
         cardIndex = card;
         buffSize = buffering*4;
         sr = sampleRate;
@@ -74,13 +74,13 @@ public class Engine implements Runnable {
             String result;
             sink.start();
             while (true) {
-                Command toRun = messages.poll();
+                Command.ICommand toRun = messages.poll();
                 if (toRun != null) {
                     result = toRun.execute(environment);
                     result = (result == null) ? "" : result;
-                    if(toRun.replyTo != null) {
+                    if(toRun.getSender() != null) {
                         try {
-                            toRun.replyTo.add(result);
+                            toRun.getSender().add(result);
                         } catch (Exception e) {
                             System.out.println("engine reply queue error");
                             e.printStackTrace();

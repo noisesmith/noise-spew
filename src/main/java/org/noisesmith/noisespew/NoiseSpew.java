@@ -38,7 +38,8 @@ public class NoiseSpew {
             printer.start();
             println(printerQueue, "starting noise spew:" );
             SynchronousQueue engineMessage = new SynchronousQueue();
-            ArrayList<Command> commands = new ArrayList<Command>();
+            ArrayList<Command.ICommand> commands =
+                new ArrayList<Command.ICommand>();
             // for(String arg : args) {
             //     Command c = new Command(CommandParser.Action.ADDSOURCE);
             //     c.source = arg;
@@ -52,10 +53,12 @@ public class NoiseSpew {
         }
     }
 
-    public static void runInteractive(ArrayList<Command> initial,
+    public static void runInteractive(ArrayList<Command.ICommand> initial,
                                       ArrayBlockingQueue<String> printerQueue) {
-        SynchronousQueue<Command> commandMessage = new SynchronousQueue();
-        SynchronousQueue<Command> engineMessage = new SynchronousQueue();
+        SynchronousQueue<Command.ICommand> commandMessage =
+            new SynchronousQueue();
+        SynchronousQueue<Command.ICommand> engineMessage =
+            new SynchronousQueue();
         Engine gen = new Engine(engineMessage);
         Thread audio = new Thread(gen, "ENGINE");
         audio.start();
@@ -137,18 +140,18 @@ public class NoiseSpew {
         public long offset;
         public SynchronousQueue in;
         public BiMap<String> resources;
-        public ArrayList<Command> commands;
+        public ArrayList<Command.ICommand> commands;
         public Engine gen;
 
         public ControlEnv (SynchronousQueue i, Engine g) {
             resources = new BiMap<String>();
-            commands = new ArrayList<Command>();
+            commands = new ArrayList<Command.ICommand>();
             in = i;
             gen = g;
         }
     }
 
-    public static void loopWorker( SynchronousQueue<Command> queue,
+    public static void loopWorker( SynchronousQueue<Command.ICommand> queue,
                                    ArrayBlockingQueue<String> printerQueue,
                                    Engine gen )
         throws InterruptedException {
@@ -156,8 +159,8 @@ public class NoiseSpew {
         ArrayBlockingQueue<String> replies = new ArrayBlockingQueue(1024);
         String output;
         while (true) {
-            Command parsed = queue.take();
-            parsed.replyTo = replies;
+            Command.ICommand parsed = queue.take();
+            parsed.setSender(replies);
             if(parsed != null) {
                 environment.commands.add(parsed);
                 output = parsed.execute(environment);
@@ -166,7 +169,7 @@ public class NoiseSpew {
                 String engineResponse = replies.take();
                 print(printerQueue, engineResponse);
             }
-            if(parsed.interactive) prompt(printerQueue);
+            if(parsed.isInteractive()) prompt(printerQueue);
         }
     }
 }
