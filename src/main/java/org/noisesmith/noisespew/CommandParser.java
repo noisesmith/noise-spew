@@ -43,9 +43,17 @@ public class CommandParser {
                                            command +
                                            ", already refers to " +
                                            invocations.get(input));
-                        throw new AssertionError("duplicate command");
+                        throw new AssertionError("duplicate invocation");
                     }
                     invocations.put(input, command);
+                }
+                if (deserializations.containsKey(command.getName())) {
+                    System.out.println("command " + command +
+                                       " cannot be associated with " +
+                                       command.getName() +
+                                       ", already refers to " +
+                                       deserializations.get(command.getName()));
+                    throw new AssertionError("duplicate command name");
                 }
                 deserializations.put(command.getName(), command);
             });
