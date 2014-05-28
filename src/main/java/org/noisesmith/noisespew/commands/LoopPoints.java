@@ -4,7 +4,7 @@ import org.noisesmith.noisespew.Command;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisespew.NoiseSpew.ControlEnv;
 import org.noisesmith.noisegenerator.Engine;
-import org.noisesmith.noisegenerator.UGen;
+import org.noisesmith.noisegenerator.ugens.Looper;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -38,7 +38,7 @@ public class LoopPoints extends Command implements Command.ICommand {
         if (error != null) {
             return error;
         } else {
-            UGen loop = environment.sources.get(index);
+            Looper loop = (Looper) environment.sources.get(index);
             loop.in(start);
             loop.out(end);
             loop.start();

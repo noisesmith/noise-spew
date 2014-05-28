@@ -37,14 +37,7 @@ public class ListStatus extends Command implements Command.ICommand {
         loopmap.forEach((i, l) -> {
                 out.append(i)
                     .append(" - ")
-                    .append(l.active ? "on" : "off")
-                    .append(" ")
-                    .append(l.start / 44100.0)
-                    .append("->")
-                    .append(l.end / 44100.0)
-                    .append("	")
-                    .append(l.description)
-                    .append("\n");
+                    .append(l.statusString());
             });
         return out.toString();
     }

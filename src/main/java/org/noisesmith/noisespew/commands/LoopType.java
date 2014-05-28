@@ -4,6 +4,7 @@ import org.noisesmith.noisespew.Command;
 import org.noisesmith.noisespew.NoiseSpew.ControlEnv;
 import org.noisesmith.noisegenerator.Engine.EngineEnv;
 import org.noisesmith.noisegenerator.UGen;
+import org.noisesmith.noisegenerator.ugens.Looper;
 import org.noisesmith.noisegenerator.Engine;
 import java.util.Map;
 import java.util.function.Function;
@@ -38,17 +39,7 @@ public class LoopType extends Command implements Command.ICommand {
             return error;
         } else {
             UGen loop = environment.sources.get(index);
-            switch (selection) {
-            case 1:
-                loop.looping = UGen.LoopType.PINGPONG;
-                break;
-            case 2:
-                loop.looping = UGen.LoopType.ONESHOT;
-                break;
-            case 0:
-            default:
-                loop.looping = UGen.LoopType.LOOP;
-            }
+            ((Looper) loop).setLooping(selection);
             return null;
         }
     }

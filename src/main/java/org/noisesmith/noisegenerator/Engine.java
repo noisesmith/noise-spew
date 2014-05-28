@@ -89,7 +89,7 @@ public class Engine implements Runnable {
                 }
                 ugenBuffers = sources
                     .stream()
-                    .filter(u -> u.active)
+                    .filter(u -> u.isActive())
                     .map(u -> u.gen(frames))
                     .toArray(x -> new double[x][]);
                 out.clear();

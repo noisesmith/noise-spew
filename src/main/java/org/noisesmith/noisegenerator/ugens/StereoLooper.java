@@ -1,15 +1,15 @@
-package org.noisesmith.noisegenerator;
+package org.noisesmith.noisegenerator.ugens;
 
-public class StereoUGen extends UGen {
-    public StereoUGen (int size) {
+public class StereoLooper extends Looper {
+    public StereoLooper (int size) {
         super(size);
     }
 
-    public StereoUGen (double[] buf) {
+    public StereoLooper (double[] buf) {
         super(buf);
     }
 
-    public StereoUGen () {
+    public StereoLooper () {
         super();
     }
 

@@ -3,8 +3,8 @@ package org.noisesmith.noisespew.commands;
 import org.noisesmith.noisespew.Command;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisegenerator.Engine;
-import org.noisesmith.noisegenerator.UGen;
-import org.noisesmith.noisegenerator.StereoUGen;
+import org.noisesmith.noisegenerator.ugens.Looper;
+import org.noisesmith.noisegenerator.ugens.StereoLooper;
 import java.util.Map;
 import java.util.function.Function;
 import java.io.File;
@@ -38,11 +38,11 @@ public class AddLoop extends Command implements Command.ICommand {
             if(environment.buffers.containsKey(i)) {
                 b = environment.buffers.get(i);
             } else {
-                b = UGen.fileBuffer(source);
+                b = Looper.fileBuffer(source);
                 environment.buffers.put(i, b);
             }
-            StereoUGen u = new StereoUGen(b);
-            u.description = source;
+            StereoLooper u = new StereoLooper(b);
+            u.setDescription(source);
             environment.sources.add(0, u);
         } catch (Exception ex) {
             System.out.println("could not load loop: " + source);

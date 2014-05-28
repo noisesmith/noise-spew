@@ -11,8 +11,6 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.noisesmith.noisegenerator.Generator;
 import org.noisesmith.noisegenerator.Engine;
-import org.noisesmith.noisegenerator.UGen;
-import org.noisesmith.noisegenerator.StereoUGen;
 import org.noisesmith.noisegenerator.DebugBytes;
 
 public class NoiseSpew {

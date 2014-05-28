@@ -37,7 +37,7 @@ public class Amplitude extends Command implements Command.ICommand {
         if (error != null) {
             return error;
         } else {
-            environment.sources.get(index).amp = amp;
+            environment.sources.get(index).setAmp(amp);
             return null;
         }
     }

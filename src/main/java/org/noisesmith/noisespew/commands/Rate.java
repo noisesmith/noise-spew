@@ -33,7 +33,7 @@ public class Rate extends Command implements Command.ICommand {
         if (error != null) {
             return error;
         } else {
-            environment.sources.get(index).rate = rate;
+            environment.sources.get(index).setRate(rate);
             return null;
         }
     }
