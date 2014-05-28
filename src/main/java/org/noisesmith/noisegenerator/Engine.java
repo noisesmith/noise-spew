@@ -15,6 +15,7 @@ import java.util.EnumMap;
 import java.util.Hashtable;
 import java.util.stream.Stream;
 import java.io.File;
+import java.util.function.Function;
 
 public class Engine implements Runnable {
     public int buffSize;
@@ -73,6 +74,7 @@ public class Engine implements Runnable {
             EngineEnv environment = new EngineEnv(messages, sources);
             String result;
             sink.start();
+            long index = 0;
             while (true) {
                 Command.ICommand toRun = messages.poll();
                 if (toRun != null) {
@@ -87,10 +89,14 @@ public class Engine implements Runnable {
                         }
                     }
                 }
+                Function<Long, Function<UGen, double[]>> makeGen =
+                    i ->
+                    u ->
+                    u.gen(frames, i);
                 ugenBuffers = sources
                     .stream()
                     .filter(u -> u.isActive())
-                    .map(u -> u.gen(frames))
+                    .map(makeGen.apply(index))
                     .toArray(x -> new double[x][]);
                 out.clear();
                 out.order(ByteOrder.LITTLE_ENDIAN);
@@ -113,6 +119,7 @@ public class Engine implements Runnable {
                                                     * environment.master));
                 }
                 sink.write(buffer, 0, buffSize);
+                index++;
             }
         } catch (Exception e) {
             System.out.println("error in Engine.run");

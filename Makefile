@@ -1,5 +1,5 @@
 TOPDIR=src/main/java/org/noisesmith/
-SRCDIRS=${TOPDIR}noisespew/*.java ${TOPDIR}noisespew/commands/*.java ${TOPDIR}noisegenerator/*.java
+SRCDIRS=${TOPDIR}noisespew/*.java ${TOPDIR}noisespew/commands/*.java ${TOPDIR}noisegenerator/*.java ${TOPDIR}noisegenerator/ugens/*.java
 TARGET=target/uber-noise-spew-1.0-SNAPSHOT.jar
 MAIN=org.noisesmith.noisespew.NoiseSpew
 SF1=/home/justin/big/music/justin\ smith/ih/026/AUDIO/AUDIO001.WAV

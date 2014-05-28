@@ -1,18 +1,11 @@
 package org.noisesmith.noisegenerator;
 
-import java.util.Arrays;
-import java.io.File;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 public interface UGen {
     // interface for inputs to Engine instances
 
     // full scale is -1.0 ... 1.0 - anything larger will clip unless truncated
 
-    public void setAmp(double value);
+    public double setAmp(double value);
 
     public double setRate(double value);
 
@@ -30,5 +23,5 @@ public interface UGen {
 
     public void start ();
 
-    public double[] gen(int size);
+    public double[] gen(int size, long index);
 }

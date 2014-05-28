@@ -32,7 +32,11 @@ public class Looper implements UGen {
 
     public boolean isActive() {return active;}
 
-    public void setAmp(double value) {amp = value;}
+    public double setAmp(double value) {
+        double old = amp;
+        amp = value;
+        return old;
+    }
 
     public LoopType setLooping(LoopType selected) {
         LoopType old = looping;
@@ -92,7 +96,11 @@ public class Looper implements UGen {
         StringBuilder message = new StringBuilder();
         String pos = String.format("%5G", getPosition());
         message
+            .append("Looper ")
             .append(isActiveString())
+            .append(" (")
+            .append(amp)
+            .append(")")
             .append("	")
             .append(rate)
             .append("	~")
@@ -184,13 +192,16 @@ public class Looper implements UGen {
         }
     }
 
-    public double[] gen(int size) {
+    private long produced;
+
+    public double[] gen(int size, long index) {
         int count = size*2; // stereo
-        if (count > outBuffer.length) {
+        if (count > outBuffer.length)
             outBuffer = new double[count];
-        } else {
+        if (index != produced) {
+            fill(count);
+            produced = index;
         }
-        fill(count);
         return outBuffer;
     }
 

@@ -25,6 +25,8 @@ public class CommandParser {
                 add((Command.ICommand) new AddSource());
                 add((Command.ICommand) new DeleteSource());
                 add((Command.ICommand) new AddLoop());
+                add((Command.ICommand) new AddAm());
+                add((Command.ICommand) new AddXor());
                 add((Command.ICommand) new DeleteLoop());
                 add((Command.ICommand) new StoreCommands());
                 add((Command.ICommand) new LoadCommands());
@@ -34,8 +36,17 @@ public class CommandParser {
                 add((Command.ICommand) new Master());
             }};
         commands.forEach(command -> {
-                for(String input : command.getInvocations())
+                for(String input : command.getInvocations()) {
+                    if (invocations.containsKey(input)) {
+                        System.out.println("command " + input +
+                                           " cannot be bound to " +
+                                           command +
+                                           ", already refers to " +
+                                           invocations.get(input));
+                        throw new AssertionError("duplicate command");
+                    }
                     invocations.put(input, command);
+                }
                 deserializations.put(command.getName(), command);
             });
     }
