@@ -7,7 +7,6 @@ import org.noisesmith.noisegenerator.UGen;
 import org.noisesmith.noisegenerator.ugens.Xor;
 import java.util.Map;
 import java.util.function.Function;
-import java.io.File;
 
 public class AddXor extends Command implements Command.ICommand {
     int indexA;

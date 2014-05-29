@@ -27,6 +27,7 @@ public class CommandParser {
                 add((Command.ICommand) new AddLoop());
                 add((Command.ICommand) new AddAm());
                 add((Command.ICommand) new AddXor());
+                add((Command.ICommand) new AddLowpass());
                 add((Command.ICommand) new DeleteLoop());
                 add((Command.ICommand) new StoreCommands());
                 add((Command.ICommand) new LoadCommands());
@@ -88,8 +89,9 @@ public class CommandParser {
         } catch (Exception e) {
             if (line.length > 0 && !(line[0].isEmpty())) {
                 System.out.print("failed to parse command \"");
-                for(String token :  line) System.out.print(' ' + token);
+                for(String token :  line) System.out.print(" '" + token + "'");
                 System.out.println('"');
+                e.printStackTrace();
             }
             return new Null(null);
         }
