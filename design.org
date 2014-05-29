@@ -30,10 +30,16 @@ io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSyste
 ** TODO loop fade
 ** TODO removing unused embedded clips
 ** TODO make a recorder UGen
-** TODO delay line
-** TODO ugens with ugen input controlling parameters
 *** TODO linked list of arrays
     (increasing size, each double the prev) to record into, finally compact
+** TODO delay line
+** DONE ugens with ugen input controlling parameters
+** DONE lowpass resonant filter
+* TODO engine
+** TODO connect channels not unit generators
+** TODO make commands target channel id that persists via json
+* TODO UI
+** TODO for parameters other than amp, make a parameter command with string/ num arg
 * DONE features
 ** DONE load files
 ** patterns of playback beyond simple looping
