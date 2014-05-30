@@ -29,7 +29,11 @@ public interface UGen {
 
     public Set<UGen> getSources();
 
+    public Channel getSource(String which);
+
     public Set<UGen> getSinks();
+
+    public Channel getSink(String which);
 
     public void input(UGen in);
 
@@ -38,4 +42,6 @@ public interface UGen {
     public void unplug(UGen in);
 
     public void disconnect(UGen out);
+
+    public String getId();
 }

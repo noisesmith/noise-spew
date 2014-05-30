@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.noisesmith.noisegenerator.UGen;
 import org.noisesmith.noisegenerator.Channel;
+import java.util.UUID;
 
 public class Looper implements UGen {
     // simply outputs the contents of its buffer, same data to each channel,
@@ -32,6 +33,12 @@ public class Looper implements UGen {
     LoopType looping;
     double[] outBuffer;
     Channel out;
+    String id;
+
+    public Channel getSource(String which) {return null;}
+
+    public Channel getSink(String which) {
+        if (which == "out")
 
     public boolean isActive() {return active;}
 
@@ -223,7 +230,10 @@ public class Looper implements UGen {
         outBuffer = new double[0];
         description = "Looper";
         out = new Channel(description + " <out>");
+        id = UUID.randomUUID().toString();
     }
+
+    public String getId(){return id;}
 
     public void input(UGen i) {}
     public void output(UGen o) {

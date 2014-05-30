@@ -5,6 +5,7 @@ import org.noisesmith.noisegenerator.Channel;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.UUID;
 
 public class Am implements UGen {
     double amp;
@@ -13,6 +14,7 @@ public class Am implements UGen {
     Channel b;
     Channel o;
     boolean active;
+    String id;
 
     public Am(Channel left, Channel right) {
         a = new Channel(this.toString() + " <a in>");
@@ -25,7 +27,10 @@ public class Am implements UGen {
         o.input(this);
         b = right;
         active = true;
+        id = UUID.randomUUID().toString();
     }
+
+    public String getId() {return id;}
 
     public double setParameter(String name, double value) {return Double.NaN;}
 
@@ -34,6 +39,24 @@ public class Am implements UGen {
         result.add(a);
         result.add(b);
         return result;
+    }
+
+    public Channel getSource(String which) {
+        switch (which) {
+        case "a":
+            return a;
+        case "b":
+            return b;
+        default:
+            return null;
+        }
+    }
+
+    public Channel getSink(String which) {
+        if (which == "o") {
+            return o;
+        }
+        return null;
     }
 
     public Set<UGen> getSinks() {

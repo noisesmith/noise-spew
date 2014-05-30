@@ -47,16 +47,18 @@ public class Engine implements Runnable {
             master = 0.5;
             buffers = new Hashtable<String, double[]>();
         }
-        public Channel getSource(String which) {
-            TODO let's find the proper UUID based on longest substring match
-            for (UGen source : sources) {
-                for (Channel output : source.getSinks()) {
-                    if(output.match(which)) {
-                        return output;
-                    }
-                }
+        public UGen getSource(String toMatch) {
+            ArrayList<UGen> found = new ArrayList<UGen>();
+            for (UGen source : sources)
+                if(source.getId().startsWith(toMatch))
+                    found.add(source);
+            switch (found.size()) {
+            case 1:
+                return found.get(0);
+            case 0:
+            default:
+                return null;
             }
-            return null;
         }
     }
 

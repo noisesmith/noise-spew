@@ -3,27 +3,28 @@ package org.noisesmith.noisegenerator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Arrays;
-import java.util.UUID;
 
 public class Channel implements UGen {
     double amp;
     String description;
-    UUID id;
     boolean active;
     double[] output;
     long lastIndex;
+    String id;
 
     HashSet<UGen> inputs;
     HashSet<UGen> outputs;
 
     public Channel(String name) {
-        id = UUID.randomUUID();
         description = name + " -- " + id;
         active = true;
         amp = 1.0;
         inputs = new HashSet<UGen>();
         outputs = new HashSet<UGen>();
+        id = name;
     }
+
+    public String getId() {return id;}
 
     public double setAmp(double value) {
         double old = amp;
@@ -112,7 +113,11 @@ public class Channel implements UGen {
         return inputs;
     }
 
+    public Channel getSource(String which) {return this;}
+
     public Set<UGen> getSinks() {
         return outputs;
     }
+
+    public Channel getSink(String which) {return this;}
 }
