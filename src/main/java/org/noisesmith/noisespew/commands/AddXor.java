@@ -1,6 +1,7 @@
 package org.noisesmith.noisespew.commands;
 
 import org.noisesmith.noisespew.Command;
+import org.noisesmith.noisegenerator.Channel;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisegenerator.Engine;
 import org.noisesmith.noisegenerator.UGen;
@@ -9,8 +10,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class AddXor extends Command implements Command.ICommand {
-    int indexA;
-    int indexB;
+    String indexA;
+    String indexB;
 
     public String getName() {return "add xor";}
     public String[] getInvocations() {return new String[] {"X"};}
@@ -23,8 +24,8 @@ public class AddXor extends Command implements Command.ICommand {
 
     public AddXor(){};
     public AddXor (String[] args) {
-        indexA = Integer.parseInt(args[0]);
-        indexB = Integer.parseInt(args[1]);
+        indexA = args[0];
+        indexB = args[1];
     }
 
     public String execute ( NoiseSpew.ControlEnv environment ) {
@@ -33,10 +34,10 @@ public class AddXor extends Command implements Command.ICommand {
 
     public String execute ( Engine.EngineEnv environment ) {
         try {
-            UGen sourceA = environment.sources.get(indexA);
-            UGen sourceB = environment.sources.get(indexB);
+            Channel sourceA = environment.getSource(indexA);
+            Channel sourceB = environment.getSource(indexB);
             Xor xor = new Xor(sourceA, sourceB);
-            environment.sources.add(0, xor);
+            environment.addSource(0, xor);
         } catch (Exception ex) {
             System.out.println("could not xor inputs: " +
                                indexA + " * " + indexB);

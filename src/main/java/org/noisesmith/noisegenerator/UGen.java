@@ -1,5 +1,7 @@
 package org.noisesmith.noisegenerator;
 
+import java.util.Set;
+
 public interface UGen {
     // interface for inputs to Engine instances
 
@@ -7,7 +9,7 @@ public interface UGen {
 
     public double setAmp(double value);
 
-    public double setRate(double value);
+    public double setParameter(String name, double value);
 
     public String setDescription(String desc);
 
@@ -24,4 +26,16 @@ public interface UGen {
     public void start ();
 
     public double[] gen(int size, long index);
+
+    public Set<UGen> getSources();
+
+    public Set<UGen> getSinks();
+
+    public void input(UGen in);
+
+    public void output(UGen out);
+
+    public void unplug(UGen in);
+
+    public void disconnect(UGen out);
 }

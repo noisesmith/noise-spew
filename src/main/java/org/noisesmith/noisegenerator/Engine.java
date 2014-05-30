@@ -11,7 +11,6 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.EnumMap;
 import java.util.Hashtable;
 import java.util.stream.Stream;
 import java.io.File;
@@ -47,6 +46,17 @@ public class Engine implements Runnable {
             sources = s;
             master = 0.5;
             buffers = new Hashtable<String, double[]>();
+        }
+        public Channel getSource(String which) {
+            TODO let's find the proper UUID based on longest substring match
+            for (UGen source : sources) {
+                for (Channel output : source.getSinks()) {
+                    if(output.match(which)) {
+                        return output;
+                    }
+                }
+            }
+            return null;
         }
     }
 

@@ -1,19 +1,61 @@
 package org.noisesmith.noisegenerator.ugens;
 
 import org.noisesmith.noisegenerator.UGen;
+import org.noisesmith.noisegenerator.Channel;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
 
 public class Am implements UGen {
     double amp;
     String description;
-    UGen a;
-    UGen b;
+    Channel a;
+    Channel b;
+    Channel o;
     boolean active;
 
-    public Am(UGen left, UGen right) {
-        a = left;
+    public Am(Channel left, Channel right) {
+        a = new Channel(this.toString() + " <a in>");
+        b = new Channel(this.toString() + " <b in>");
+        o = new Channel(this.toString() + " <o out>");
+        a.input(left);
+        a.output(this);
+        b.input(right);
+        b.output(this);
+        o.input(this);
         b = right;
         active = true;
+    }
+
+    public double setParameter(String name, double value) {return Double.NaN;}
+
+    public Set<UGen> getSources() {
+        Set<UGen> result = new  HashSet<UGen>(2);
+        result.add(a);
+        result.add(b);
+        return result;
+    }
+
+    public Set<UGen> getSinks() {
+        Set<UGen> result = new HashSet<UGen>(1);
+        result.add(o);
+        return result;
+    }
+
+    public void input(UGen in) {
+        a.input(in);
+    }
+
+    public void output(UGen out) {
+        o.output(out);
+    }
+
+    public void unplug(UGen in) {
+        a.unplug(in);
+    }
+
+    public void disconnect(UGen out) {
+        o.disconnect(out);
     }
 
     public double setAmp(double value) {

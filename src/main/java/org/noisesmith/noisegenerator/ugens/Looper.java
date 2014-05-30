@@ -1,12 +1,15 @@
 package org.noisesmith.noisegenerator.ugens;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
 import java.io.File;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.noisesmith.noisegenerator.UGen;
+import org.noisesmith.noisegenerator.Channel;
 
 public class Looper implements UGen {
     // simply outputs the contents of its buffer, same data to each channel,
@@ -27,8 +30,8 @@ public class Looper implements UGen {
     int end = 0;
     String description = "ugen";
     LoopType looping;
-
     double[] outBuffer;
+    Channel out;
 
     public boolean isActive() {return active;}
 
@@ -60,10 +63,14 @@ public class Looper implements UGen {
         return setLooping(selected);
     }
 
-    public double setRate(double value) {
-        double old = rate;
-        rate = value;
-        return old;
+    public double setParameter(String which, double value) {
+        if(which == "rate") {
+            double old = rate;
+            rate = value;
+            return old;
+        } else {
+            return Double.NaN;
+        }
     }
 
     public String setDescription(String desc) {
@@ -214,7 +221,17 @@ public class Looper implements UGen {
         end = buf.length/2;
         looping = LoopType.LOOP;
         outBuffer = new double[0];
-        description = "unit generator";
+        description = "Looper";
+        out = new Channel(description + " <out>");
+    }
+
+    public void input(UGen i) {}
+    public void output(UGen o) {
+        out.output(o);
+    }
+    public void unplug(UGen i) {}
+    public void disconnect(UGen o) {
+        out.disconnect(o);
     }
 
     private static double[] empty(int size) {
@@ -265,5 +282,13 @@ public class Looper implements UGen {
             contents[i] = (rawcontents.getShort() / (Short.MAX_VALUE * 1.0));
         }
         return contents;
+    }
+    public Set<UGen> getSinks() {
+        HashSet<UGen> result = new HashSet(1);
+        result.add(out);
+        return result;
+    }
+    public Set<UGen> getSources() {
+        return null;
     }
 }
