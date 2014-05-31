@@ -1,7 +1,7 @@
 package org.noisesmith.noisespew.commands;
 
 import org.noisesmith.noisespew.Command;
-import org.noisesmith.noisegenerator.Channel;
+import org.noisesmith.noisegenerator.Output;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisegenerator.Engine;
 import org.noisesmith.noisegenerator.UGen;
@@ -17,8 +17,8 @@ public class AddXor extends Command implements Command.ICommand {
 
     public String getName() {return "add xor";}
     public String[] getInvocations() {return new String[] {"X"};}
-    public String[] getArgs() {return new String[] {"indexA", "sourceA",
-                                                    "indexB", "sourceB"};}
+    public String[] getArgs() {return new String[] {"source", "output",
+                                                    "source", "output"};}
     public String getHelp() {return "create a new Xor unit modulating sources";}
 
     public Function<String[], Command> getParser() {
@@ -39,16 +39,16 @@ public class AddXor extends Command implements Command.ICommand {
 
     public String execute ( Engine.EngineEnv environment ) {
         try {
-            UGen ugenA = environment.getSource(indexA);
-            Channel channelA = ugenA.getOutput(sourceA);
-            UGen ugenB = environment.getSource(indexB);
-            Channel channelB = ugenB.getOutput(sourceB);
-            Xor xor = new Xor(sourceA, sourceB);
-            environment.addSource(0, xor);
+            UGen ugenA = environment.getUGen(indexA);
+            Output channelA = ugenA.getOutputs().get(sourceA);
+            UGen ugenB = environment.getUGen(indexB);
+            Output channelB = ugenB.getOutputs().get(sourceB);
+            Xor xor = new Xor(channelA, channelB);
+            environment.putUGen(xor.getId(), xor);
         } catch (Exception ex) {
             System.out.println("could not xor inputs: " +
                                indexA + ":" + sourceA + " * " +
-                               indexB + ":" + srouceB);
+                               indexB + ":" + sourceB);
             ex.printStackTrace();
         } finally {
             return null;
@@ -66,10 +66,10 @@ public class AddXor extends Command implements Command.ICommand {
     public Function<Map, Command> getDeserializer () {
         return from -> {
             AddXor instance = new AddXor();
-            instance.indexA = from.get("indexA");
-            instance.sourceA = from.get("sourceA");
-            instance.indexB = (int) from.get("indexB");
-            instance.sourceB = from.get("sourceB");
+            instance.indexA = (String) from.get("indexA");
+            instance.sourceA = (String) from.get("sourceA");
+            instance.indexB = (String) from.get("indexB");
+            instance.sourceB = (String) from.get("sourceB");
             double time = (double) from.get("time");
             instance.setMoment((long) (time*1000));
             instance.setInteractive(false);

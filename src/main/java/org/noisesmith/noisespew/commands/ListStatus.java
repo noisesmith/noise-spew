@@ -2,7 +2,6 @@ package org.noisesmith.noisespew.commands;
 
 import org.noisesmith.noisespew.Command;
 import org.noisesmith.noisespew.NoiseSpew;
-import org.noisesmith.noisespew.BiMap;
 import org.noisesmith.noisegenerator.Engine;
 import org.noisesmith.noisegenerator.UGen;
 import java.util.Map;
@@ -33,9 +32,8 @@ public class ListStatus extends Command implements Command.ICommand {
     public String execute ( Engine.EngineEnv environment ) {
         out = new StringBuilder();
         out.append("\nloops:\n");
-        BiMap<UGen> loopmap = new BiMap<UGen> (environment.sources);
-        loopmap.forEach((i, l) -> {
-                out.append(i)
+        environment.ugens.values().forEach(l -> {
+                out.append(l.getId())
                     .append(" - ")
                     .append(l.statusString());
             });

@@ -1,8 +1,10 @@
+VERSION=1.0-SNAPSHOT
 TOPDIR=src/main/java/org/noisesmith/
-SRCDIRS=${TOPDIR}noisespew/*.java ${TOPDIR}noisespew/commands/*.java ${TOPDIR}noisegenerator/*.java ${TOPDIR}noisegenerator/ugens/*.java
-TARGET=target/uber-noise-spew-1.0-SNAPSHOT.jar
+SPEW=${TOPDIR}/noisespew/
+GEN=${TOPDIR}/noisegenerator/
+SRCDIRS=${SPEW}*.java ${SPEW}/commands/*.java ${GEN}*.java ${GEN}ugens/*.java
+TARGET=target/uber-noise-spew-${VERSION}.jar
 MAIN=org.noisesmith.noisespew.NoiseSpew
-SF1=/home/justin/big/music/justin\ smith/ih/026/AUDIO/AUDIO001.WAV
 MAVEN=mvn
 
 default: ${TARGET}
@@ -11,7 +13,10 @@ run: ${TARGET}
 
 ${TARGET}: ${SRCDIRS} pom.xml
 	${MAVEN} -q package
+
 clean:
 	rm -f ${TARGET}
+
+META=org.apache.maven.plugins
 plugindeps:
-	${MAVEN} org.apache.maven.plugins:maven-dependency-plugin:2.6:resolve-plugins
+	${MAVEN} ${META}:maven-dependency-plugin:2.6:resolve-plugins

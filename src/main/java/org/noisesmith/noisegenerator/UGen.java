@@ -1,6 +1,6 @@
 package org.noisesmith.noisegenerator;
 
-import java.util.Set;
+import java.util.Map;
 
 public interface UGen {
     // interface for inputs to Engine instances
@@ -15,33 +15,21 @@ public interface UGen {
 
     public String getDescription();
 
+    public String getId();
+
     public String statusString();
 
     public boolean isActive();
 
     public void toggle();
 
-    public void stop ();
+    public void stop();
 
-    public void start ();
+    public void start();
 
-    public double[] gen(int size, long index);
+    public double[] gen(String name, int size, long index);
 
-    public Set<UGen> getSources();
+    public Map<String,Input> getInputs();
 
-    public Channel getSource(String which);
-
-    public Set<UGen> getSinks();
-
-    public Channel getSink(String which);
-
-    public void input(UGen in);
-
-    public void output(UGen out);
-
-    public void unplug(UGen in);
-
-    public void disconnect(UGen out);
-
-    public String getId();
+    public Map<String,Output> getOutputs();
 }

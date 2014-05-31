@@ -11,6 +11,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.Map;
 import java.util.Hashtable;
 import java.util.stream.Stream;
 import java.io.File;
@@ -20,36 +21,29 @@ public class Engine implements Runnable {
     public int buffSize;
     public int cardIndex;
     public int sr;
-    public ArrayList<UGen> sources;
+    public Input sourceLeft;
+    public Input sourceRight;
     SourceDataLine sink;
-    double[][] ugenBuffers;
     public SynchronousQueue<Command.ICommand> messages;
-
-    public static String badIndex(int index, String s, ArrayList<UGen> src) {
-        if (src.size() <= index || index < 0) {
-            return "\nEngine error: " +
-                s +
-                " " +
-                index;
-        } else {
-            return null;
-        }
-    }
 
     public static final class EngineEnv {
         public SynchronousQueue in;
-        public ArrayList<UGen> sources;
+        public Input sourceLeft;
+        public Input sourceRight;
+        public Map<String,UGen> ugens;
         public double master;
         public Hashtable <String, double[]> buffers;
-        public EngineEnv ( SynchronousQueue i, ArrayList<UGen> s ) {
+        public EngineEnv ( SynchronousQueue i, Input l, Input r) {
             in = i;
-            sources = s;
+            sourceLeft = l;
+            sourceRight = r;
             master = 0.5;
             buffers = new Hashtable<String, double[]>();
+            ugens = new Hashtable<String,UGen>();
         }
-        public UGen getSource(String toMatch) {
+        public UGen getUGen(String toMatch) {
             ArrayList<UGen> found = new ArrayList<UGen>();
-            for (UGen source : sources)
+            for (UGen source : ugens.values())
                 if(source.getId().startsWith(toMatch))
                     found.add(source);
             switch (found.size()) {
@@ -60,6 +54,20 @@ public class Engine implements Runnable {
                 return null;
             }
         }
+        public boolean putUGen(String id, UGen ugen) {
+            if(ugens.containsKey(id))
+                return false;
+            ugens.put(id, ugen);
+            return true;
+        }
+        public boolean deleteUGen(String id) {
+            if(ugens.containsKey(id))
+                return false;
+            else
+                ugens.remove(id);
+            // TODO also eliminate it from the signal flow graph
+            return true;
+        }
     }
 
     public Engine(int card, int buffering, int sampleRate,
@@ -68,7 +76,8 @@ public class Engine implements Runnable {
         buffSize = buffering*4;
         sr = sampleRate;
         messages = m;
-        sources = new ArrayList();
+        sourceLeft = new Input("left");
+        sourceRight = new Input("right");
     }
 
     public Engine(SynchronousQueue m) {
@@ -82,8 +91,9 @@ public class Engine implements Runnable {
             int frames = dataCount / 2; // always stereo
             byte[] buffer = new byte[buffSize];
             ByteBuffer out = ByteBuffer.wrap(buffer);
+            double[] leftBuf, rightBuf;
             double left, right;
-            EngineEnv environment = new EngineEnv(messages, sources);
+            EngineEnv environment = new EngineEnv(messages, sourceLeft, sourceRight);
             String result;
             sink.start();
             long index = 0;
@@ -101,27 +111,16 @@ public class Engine implements Runnable {
                         }
                     }
                 }
-                Function<Long, Function<UGen, double[]>> makeGen =
-                    i ->
-                    u ->
-                    u.gen(frames, i);
-                ugenBuffers = sources
-                    .stream()
-                    .filter(u -> u.isActive())
-                    .map(makeGen.apply(index))
-                    .toArray(x -> new double[x][]);
                 out.clear();
                 out.order(ByteOrder.LITTLE_ENDIAN);
-                for(int i = 0; i < dataCount; i += 2) {
-                    left = 0.0;
-                    right = 0.0;
-                    for(double[] b : ugenBuffers) {
-                        left += b[i];
-                        right += b[i+1];
-                    }
+                leftBuf = sourceLeft.gen(frames, index);
+                rightBuf = sourceRight.gen(frames, index);
+                for(int i = 0; i < frames; i++) {
+                    left = leftBuf[i];
+                    right = rightBuf[i];
                     left = Math.min(left, 1.0);
-                    left = Math.max(left, -1.0);
                     right = Math.min(right, 1.0);
+                    left = Math.max(left, -1.0);
                     right = Math.max(right, -1.0);
                     out.putShort((short) Math.floor(left
                                                     * Short.MAX_VALUE

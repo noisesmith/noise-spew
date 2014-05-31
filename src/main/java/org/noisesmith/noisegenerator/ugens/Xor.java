@@ -1,10 +1,10 @@
 package org.noisesmith.noisegenerator.ugens;
 
-import org.noisesmith.noisegenerator.Channel;
+import org.noisesmith.noisegenerator.Output;
 import java.util.Arrays;
 
 public class Xor extends Am {
-    public Xor(Channel left, Channel right) {
+    public Xor(Output left, Output right) {
         super(left, right);
     }
 

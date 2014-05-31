@@ -9,20 +9,13 @@
 package org.noisesmith.noisegenerator.ugens;
 
 import org.noisesmith.noisegenerator.UGen;
+import org.noisesmith.noisegenerator.Output;
 import java.util.Arrays;
 
 public class LowRes extends Am {
-    LowPass filterLeft;
-    LowPass filterRight;
+    LowPass filter;
     double center, resonance;
-    double[] left, right;
-
-    @Override
-    public double setAmp(double value) {
-        double old = amp;
-        amp = value;
-        return old;
-    }
+    double[] output;
 
     public double setCenter(double value) {
         double old = center;
@@ -36,10 +29,9 @@ public class LowRes extends Am {
         return old;
     }
 
-    public LowRes(UGen input, double c, double res) {
+    public LowRes(Output input, double c, double res) {
         super(input, input);
-        filterLeft = new LowPass();
-        filterRight = new LowPass();
+        filter = new LowPass();
         center = c;
         resonance = res;
         amp = 1.0;
@@ -70,7 +62,7 @@ public class LowRes extends Am {
             b = 0.0;
         }
 
-        double[] calc(double fco, double res, double[] sig) {
+        double[] calc(double fco, double res, double[] sig, double amp) {
             double yn = 0.0;
             double[] result;
             int nsmps = sig.length;
@@ -85,7 +77,7 @@ public class LowRes extends Am {
             result = new double[nsmps];
             for (int n = 0; n < nsmps; n++) {
                 yn = (coef1 * ynm1 - k * ynm2 + sig[n]) * coef2;
-                result[n] = yn;
+                result[n] = yn * amp;
                 ynm2 = ynm1;
                 ynm1 = yn;
             }
@@ -93,27 +85,15 @@ public class LowRes extends Am {
         }
     }
 
-    public double[] gen( int size, long index ) {
-        double[] output = out(size*2);
+    public double[] gen( String which, int size, long index ) {
+        if (which != "out") return null;
+        output = out(size);
         if (index == produced)
             return output;
         produced = index;
         if (a != null) {
             double[] asig = a.gen(size, index);
-            if (left == null || size > left.length) {
-                left = new double[size];
-                right = new double[size];
-            }
-            for(int i = 0; i < size; i++) {
-                left[i] = asig[i*2];
-                right[i] = asig[i*2+1];
-            }
-            double[] l = filterLeft.calc(center, resonance, left);
-            double[] r = filterRight.calc(center, resonance, right);
-            for(int i = 0; i < size; i++) {
-                output[i*2] = l[i]*amp;
-                output[i*2+1] = r[i]*amp;
-            }
+            output = filter.calc(center, resonance, asig, amp);
         } else {
             Arrays.fill(output, 0.0);
         }

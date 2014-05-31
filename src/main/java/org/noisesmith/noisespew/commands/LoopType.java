@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class LoopType extends Command implements Command.ICommand {
-    int index;
+    String identifier;
     int selection;
 
     public Function<String[], Command> getParser() {
@@ -19,26 +19,23 @@ public class LoopType extends Command implements Command.ICommand {
 
     public String getName() {return "loop type";}
     public String[] getInvocations() {return new String[]{"t"};}
-    public String[] getArgs() {return new String[]{"index", "type"};}
+    public String[] getArgs() {return new String[]{"id", "type"};}
     public String getHelp() {
         return "set looping 0=normal 1=pingpong 2=oneshot";
     }
     public LoopType(){}
     public LoopType (String[] args) {
-        index = Integer.parseInt(args[0]);
+        identifier = args[0];
         selection = Integer.parseInt(args[1]);
     }
 
     public String execute ( ControlEnv environment ) {return null;}
 
     public String execute ( EngineEnv environment ) {
-        String error = Engine.badIndex(index,
-                                       "could not change loop type of",
-                                       environment.sources);
-        if (error != null) {
-            return error;
+        UGen loop = environment.getUGen(identifier);
+        if (loop == null) {
+            return "Could not set loop type of " + identifier;
         } else {
-            UGen loop = environment.sources.get(index);
             ((Looper) loop).setLooping(selection);
             return null;
         }
@@ -46,7 +43,7 @@ public class LoopType extends Command implements Command.ICommand {
 
     public Map serialize(Map<String,Object> to) {
         to.put("name", getName());
-        to.put("index", index);
+        to.put("identifier", identifier);
         to.put("selection", selection);
         to.put("time", getMoment() / 1000.0);
         return to;
@@ -54,7 +51,7 @@ public class LoopType extends Command implements Command.ICommand {
     public Function<Map, Command> getDeserializer() {
         return from -> {
             LoopType instance = new LoopType();
-            instance.index = (int) from.get("index");
+            instance.identifier = (String) from.get("identifier");
             instance.selection = (int) from.get("selection");
             double time = (double) from.get("time");
             instance.setMoment((long) (time*1000));

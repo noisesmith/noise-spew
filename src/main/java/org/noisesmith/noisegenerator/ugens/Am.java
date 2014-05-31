@@ -1,31 +1,28 @@
 package org.noisesmith.noisegenerator.ugens;
 
 import org.noisesmith.noisegenerator.UGen;
-import org.noisesmith.noisegenerator.Channel;
+import org.noisesmith.noisegenerator.Input;
+import org.noisesmith.noisegenerator.Output;
 import java.util.Arrays;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 public class Am implements UGen {
     double amp;
     String description;
-    Channel a;
-    Channel b;
-    Channel o;
+    Input a;
+    Input b;
+    Output out;
     boolean active;
     String id;
 
-    public Am(Channel left, Channel right) {
-        a = new Channel(this.toString() + " <a in>");
-        b = new Channel(this.toString() + " <b in>");
-        o = new Channel(this.toString() + " <o out>");
-        a.input(left);
-        a.output(this);
-        b.input(right);
-        b.output(this);
-        o.input(this);
-        b = right;
+    public Am(Output left, Output right) {
+        a = new Input("a");
+        b = new Input("b");
+        out = new Output(this, "out");
+        a.plug(left);
+        b.plug(right);
         active = true;
         id = UUID.randomUUID().toString();
     }
@@ -34,51 +31,25 @@ public class Am implements UGen {
 
     public double setParameter(String name, double value) {return Double.NaN;}
 
-    public Set<UGen> getSources() {
-        Set<UGen> result = new  HashSet<UGen>(2);
-        result.add(a);
-        result.add(b);
+    public Map<String,Output> getOutputs() {
+        Map<String,Output> result = new LinkedHashMap<String,Output>();
+        result.put("out", out);
         return result;
     }
 
-    public Channel getSource(String which) {
-        switch (which) {
-        case "a":
-            return a;
-        case "b":
-            return b;
-        default:
-            return null;
-        }
-    }
-
-    public Channel getSink(String which) {
-        if (which == "o") {
-            return o;
-        }
-        return null;
-    }
-
-    public Set<UGen> getSinks() {
-        Set<UGen> result = new HashSet<UGen>(1);
-        result.add(o);
+    public Map<String,Input> getInputs() {
+        LinkedHashMap<String,Input> result = new LinkedHashMap<String,Input>();
+        result.put("a", a);
+        result.put("b", b);
         return result;
     }
 
-    public void input(UGen in) {
-        a.input(in);
+    public void input(UGen in, String which) {
+        a.plug(in.getOutputs().get(which));
     }
 
-    public void output(UGen out) {
-        o.output(out);
-    }
-
-    public void unplug(UGen in) {
-        a.unplug(in);
-    }
-
-    public void disconnect(UGen out) {
-        o.disconnect(out);
+    public void unplug(UGen in, String which) {
+        a.unplug(in.getOutputs().get(which));
     }
 
     public double setAmp(double value) {
@@ -117,10 +88,11 @@ public class Am implements UGen {
         active = !active;
     }
 
-    double[] out;
+    double[] outbuffer;
     long produced;
 
-    public double[] gen( int size, long index ) {
+    public double[] gen( String which, int size, long index ) {
+        if (which != "out") return null;
         double[] output = out(size*2);
         if (index == produced)
             return output;
@@ -139,9 +111,9 @@ public class Am implements UGen {
     }
 
     double[] out(int count) {
-        if (out == null || out.length < count) {
-            out = new double[count];
+        if (outbuffer == null || outbuffer.length < count) {
+            outbuffer = new double[count];
         }
-        return out;
+        return outbuffer;
     }
 }

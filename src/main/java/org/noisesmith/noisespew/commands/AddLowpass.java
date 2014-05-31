@@ -4,21 +4,27 @@ import org.noisesmith.noisespew.Command;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisegenerator.Engine;
 import org.noisesmith.noisegenerator.UGen;
+import org.noisesmith.noisegenerator.Output;
 import org.noisesmith.noisegenerator.ugens.LowRes;
 import java.util.Map;
 import java.util.function.Function;
 
 public class AddLowpass extends Command implements Command.ICommand {
-    int index;
+    String identifier;
+    String source;
     double center;
     double resonance;
 
     public String getName() {return "add lowpass";}
     public String[] getInvocations() {return new String[] {"f"};}
-    public String[] getArgs() {return new String[] {
-            "index",
+    public String[] getArgs() {
+        return new String[] {
+            "id",
+            "output",
             "center",
-            "resonance"};}
+            "resonance"
+        };
+    }
     public String getHelp() {return "create a new lowpass filter unit";}
 
     public Function<String[], Command> getParser() {
@@ -27,9 +33,10 @@ public class AddLowpass extends Command implements Command.ICommand {
 
     public AddLowpass(){};
     public AddLowpass (String[] args) {
-        index = Integer.parseInt(args[0]);
-        center = Double.parseDouble(args[1]);
-        resonance = Double.parseDouble(args[2]);
+        identifier = args[0];
+        source = args[1];
+        center = Double.parseDouble(args[2]);
+        resonance = Double.parseDouble(args[3]);
     }
 
     public String execute ( NoiseSpew.ControlEnv environment ) {
@@ -38,11 +45,13 @@ public class AddLowpass extends Command implements Command.ICommand {
 
     public String execute ( Engine.EngineEnv environment ) {
         try {
-            UGen source = environment.sources.get(index);
-            LowRes filt = new LowRes(source, center, resonance);
-            environment.sources.add(0, filt);
+            Output channel = environment.getUGen(identifier)
+                .getOutputs().get(identifier);
+            LowRes filt = new LowRes(channel, center, resonance);
+            environment.putUGen(filt.getId(), filt);
         } catch (Exception ex) {
-            System.out.println("could not filter input: " + index);
+            System.out.println("could not filter input: " + identifier + ":"
+                               + source);
             ex.printStackTrace();
         } finally {
             return null;
@@ -50,7 +59,8 @@ public class AddLowpass extends Command implements Command.ICommand {
     }
     public Map serialize(Map<String,Object> to) {
         to.put("name", getName());
-        to.put("index", index);
+        to.put("identifier", identifier);
+        to.put("source", source);
         to.put("center", center);
         to.put("resonance", resonance);
         to.put("time", getMoment() / 1000.0);
@@ -59,7 +69,8 @@ public class AddLowpass extends Command implements Command.ICommand {
     public Function<Map, Command> getDeserializer () {
         return from -> {
             AddLowpass instance = new AddLowpass();
-            instance.index = (int) from.get("index");
+            instance.identifier = (String) from.get("identifier");
+            instance.source = (String) from.get("source");
             instance.center = (double) from.get("center");
             instance.resonance = (double) from.get("resonance");
             double time = (double) from.get("time");

@@ -3,19 +3,26 @@ package org.noisesmith.noisespew.commands;
 import org.noisesmith.noisespew.Command;
 import org.noisesmith.noisespew.NoiseSpew;
 import org.noisesmith.noisegenerator.Engine;
-import org.noisesmith.noisegenerator.UGen;
+import org.noisesmith.noisegenerator.Output;
 import org.noisesmith.noisegenerator.ugens.Am;
 import java.util.Map;
 import java.util.function.Function;
 import java.io.File;
 
 public class AddAm extends Command implements Command.ICommand {
-    int indexA;
-    int indexB;
+    String idA;
+    String srcA;
+    String idB;
+    String srcB;
 
     public String getName() {return "add am";}
     public String[] getInvocations() {return new String[] {"A"};}
-    public String[] getArgs() {return new String[] {"sourceA", "sourceB"};}
+    public String[] getArgs() {
+        return new String[] {
+            "idA", "sourceA",
+            "idB", "sourceB"
+        };
+    }
     public String getHelp() {return "create a new AM unit modulating sources";}
 
     public Function<String[], Command> getParser() {
@@ -24,8 +31,10 @@ public class AddAm extends Command implements Command.ICommand {
 
     public AddAm(){};
     public AddAm (String[] args) {
-        indexA = Integer.parseInt(args[0]);
-        indexB = Integer.parseInt(args[1]);
+        idA = args[0];
+        srcA = args[1];
+        idB = args[2];
+        srcB = args[3];
     }
 
     public String execute ( NoiseSpew.ControlEnv environment ) {
@@ -34,13 +43,14 @@ public class AddAm extends Command implements Command.ICommand {
 
     public String execute ( Engine.EngineEnv environment ) {
         try {
-            UGen sourceA = environment.sources.get(indexA);
-            UGen sourceB = environment.sources.get(indexB);
+            Output sourceA = environment.getUGen(idA).getOutputs().get(srcA);
+            Output sourceB = environment.getUGen(idB).getOutputs().get(srcB);
             Am modulator = new Am(sourceA, sourceB);
-            environment.sources.add(0, modulator);
+            environment.putUGen(modulator.getId(), modulator);
         } catch (Exception ex) {
             System.out.println("could not modulate inputs: " +
-                               indexA + " * " + indexB);
+                               idA + ":" + srcA + " * " +
+                               idB + ":" + srcB);
             ex.printStackTrace();
         } finally {
             return null;
@@ -48,16 +58,20 @@ public class AddAm extends Command implements Command.ICommand {
     }
     public Map serialize(Map<String,Object> to) {
         to.put("name", getName());
-        to.put("indexA", indexA);
-        to.put("indexB", indexB);
+        to.put("idA", idA);
+        to.put("sourceA", srcA);
+        to.put("idB", idB);
+        to.put("sourceB", srcB);
         to.put("time", getMoment() / 1000.0);
         return to;
     }
     public Function<Map, Command> getDeserializer () {
         return from -> {
             AddAm instance = new AddAm();
-            instance.indexA = (int) from.get("indexA");
-            instance.indexB = (int) from.get("indexB");
+            instance.idA = (String) from.get("idA");
+            instance.srcA = (String) from.get("sourceA");
+            instance.idB = (String) from.get("idB");
+            instance.srcB = (String) from.get("sourceB");
             double time = (double) from.get("time");
             instance.setMoment((long) (time*1000));
             instance.setInteractive(false);

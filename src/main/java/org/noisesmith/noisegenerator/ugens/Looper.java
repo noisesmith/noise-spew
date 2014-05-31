@@ -1,15 +1,16 @@
 package org.noisesmith.noisegenerator.ugens;
 
 import java.util.Arrays;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.io.File;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.noisesmith.noisegenerator.UGen;
-import org.noisesmith.noisegenerator.Channel;
+import org.noisesmith.noisegenerator.Input;
+import org.noisesmith.noisegenerator.Output;
 import java.util.UUID;
 
 public class Looper implements UGen {
@@ -32,13 +33,19 @@ public class Looper implements UGen {
     String description = "ugen";
     LoopType looping;
     double[] outBuffer;
-    Channel out;
+    Output out;
     String id;
 
-    public Channel getSource(String which) {return null;}
+    public Map<String,Input> getInputs() {
+        Map<String,Input> result = new LinkedHashMap<String,Input>();
+        return result;
+    }
 
-    public Channel getSink(String which) {
-        if (which == "out")
+    public Map<String,Output> getOutputs() {
+        Map<String,Output> result = new LinkedHashMap<String,Output>();
+        result.put("out", out);
+        return result;
+    }
 
     public boolean isActive() {return active;}
 
@@ -197,23 +204,20 @@ public class Looper implements UGen {
         }
     }
 
-    void fill ( int count ) {
-        for(int i = 0; i < count; i += 2) {
-            double out = buffer[position]*amp;
-            outBuffer[i] = out;
-            outBuffer[i+1] = out;
-            updatePhase();
+    long produced;
+
+    public double[] gen(String selection, int count, long index) {
+        if (selection != "out") {
+            return null;
         }
-    }
-
-    private long produced;
-
-    public double[] gen(int size, long index) {
-        int count = size*2; // stereo
         if (count > outBuffer.length)
             outBuffer = new double[count];
         if (index != produced) {
-            fill(count);
+            for(int i = 0; i < count; i++) {
+                double out = buffer[position]*amp;
+                outBuffer[i] = out;
+                updatePhase();
+            }
             produced = index;
         }
         return outBuffer;
@@ -229,20 +233,14 @@ public class Looper implements UGen {
         looping = LoopType.LOOP;
         outBuffer = new double[0];
         description = "Looper";
-        out = new Channel(description + " <out>");
+        out = new Output(this, description + " <out>");
         id = UUID.randomUUID().toString();
     }
 
     public String getId(){return id;}
 
     public void input(UGen i) {}
-    public void output(UGen o) {
-        out.output(o);
-    }
     public void unplug(UGen i) {}
-    public void disconnect(UGen o) {
-        out.disconnect(o);
-    }
 
     private static double[] empty(int size) {
         double[] buf = new double[size];
@@ -292,13 +290,5 @@ public class Looper implements UGen {
             contents[i] = (rawcontents.getShort() / (Short.MAX_VALUE * 1.0));
         }
         return contents;
-    }
-    public Set<UGen> getSinks() {
-        HashSet<UGen> result = new HashSet(1);
-        result.add(out);
-        return result;
-    }
-    public Set<UGen> getSources() {
-        return null;
     }
 }

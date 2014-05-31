@@ -9,14 +9,14 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class LoopPoints extends Command implements Command.ICommand {
-    int index;
+    String identifier;
     double start;
     double end;
 
     public String getName() {return "loop points";}
     public String[] getInvocations() {return new String[] {"x"};}
-    public String[] getArgs() {return new String[] {"index", "start", "end"};}
-    public String getHelp() {return "set loop points for loop <index>";}
+    public String[] getArgs() {return new String[] {"identifier", "start", "end"};}
+    public String getHelp() {return "set loop points for loop <identifier>";}
 
     public Function<String[], Command> getParser() {
         return s -> new LoopPoints(s);
@@ -24,7 +24,7 @@ public class LoopPoints extends Command implements Command.ICommand {
 
     public LoopPoints(){};
     public LoopPoints (String[] args) {
-        index = Integer.parseInt(args[0]);
+        identifier = args[0];
         start = Double.parseDouble(args[1]);
         end = Double.parseDouble(args[2]);
     }
@@ -32,13 +32,10 @@ public class LoopPoints extends Command implements Command.ICommand {
     public String execute ( NoiseSpew.ControlEnv environment ) { return null; }
 
     public String execute ( Engine.EngineEnv environment ) {
-        String error = Engine.badIndex(index,
-                                       "could not reloop",
-                                       environment.sources);
-        if (error != null) {
-            return error;
+        Looper loop = (Looper) environment.getUGen(identifier);
+        if (loop == null) {
+            return "cannot set loop points of " + identifier;
         } else {
-            Looper loop = (Looper) environment.sources.get(index);
             loop.in(start);
             loop.out(end);
             loop.start();
@@ -47,7 +44,7 @@ public class LoopPoints extends Command implements Command.ICommand {
     }
     public Map serialize(Map<String,Object> to) {
         to.put("name", getName());
-        to.put("index", index);
+        to.put("identifier", identifier);
         to.put("start", start);
         to.put("end", end);
         to.put("time", getMoment() / 1000.0);
@@ -57,7 +54,7 @@ public class LoopPoints extends Command implements Command.ICommand {
     public Function<Map, Command> getDeserializer () {
         return from -> {
             LoopPoints instance = new LoopPoints();
-            instance.index = (int) from.get("index");
+            instance.identifier = (String) from.get("identifier");
             instance.start = (double) from.get("start");
             instance.end = (double) from.get("end");
             double time = (double) from.get("time");

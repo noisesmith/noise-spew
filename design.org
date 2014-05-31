@@ -1,23 +1,3 @@
-* references
-play with [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/package-summary.html][sound.sampled]]
-io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html][audiosystem]]
-* DONE [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Clip.html][Clip]]
-  .open( [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/AudioInputStream.html][AudioInputStream]] ) ( AudioSystem.getAudioInputStream(file) )
-* DONE [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Mixer.html][Mixer]]
-  .getLine( [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Line.Info.html][Line.Info]] Mixer.getSourceLineInfo()[N] )
-* DONE replace Loop with [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/SourceDataLine.html][SourceDataLine]] and [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html#getAudioInputStream-java.io.File-][getAudioInputStream]]
-  make an Engine class that keeps a collection of input generators,
-  each implementing a gen(size) method that returns a buffer.
-  make a UGen class that can be subclassed to make input generators.
-** DONE make stereo audio files load to memory and play via mixer
-** TODO replace the interface using Clip in Loop with one using UGen
-*** TODO loop points
-*** TODO toggle on and off
-** DONE start
-** DONE stop
-** DONE toggle
-** DONE embedded clip
-*** DONE isRunning();
 * TODO features for UGens
 ** DONE amplitude factor
 ** DONE playback direction
@@ -35,25 +15,63 @@ io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSyste
 ** TODO delay line
 ** DONE ugens with ugen input controlling parameters
 ** DONE lowpass resonant filter
+
 * TODO engine
 ** TODO connect channels not unit generators
+*** TODO UI to make / break connections
+** TODO UGen removal from graph
+*** double link outputs / inputs?
 ** TODO make commands target channel id that persists via json
+*** TODO recover and reuse the channel id from json
+
 * TODO UI
 ** TODO for parameters other than amp, make a parameter command with string/ num arg
+
+* DONE [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Clip.html][Clip]]
+  .open( [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/AudioInputStream.html][AudioInputStream]] ) ( AudioSystem.getAudioInputStream(file) )
+
+* DONE [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Mixer.html][Mixer]]
+  .getLine( [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/Line.Info.html][Line.Info]] Mixer.getSourceLineInfo()[N] )
+
+* DONE replace Loop with [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/SourceDataLine.html][SourceDataLine]] and [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html#getAudioInputStream-java.io.File-][getAudioInputStream]]
+  make an Engine class that keeps a collection of input generators,
+  each implementing a gen(size) method that returns a buffer.
+  make a UGen class that can be subclassed to make input generators.
+** DONE make stereo audio files load to memory and play via mixer
+** DONE replace the interface using Clip in Loop with one using UGen
+*** DONE loop points
+*** DONE toggle on and off
+** DONE start
+** DONE stop
+** DONE toggle
+** DONE embedded clip
+*** DONE isRunning();
+
 * DONE features
 ** DONE load files
 ** patterns of playback beyond simple looping
 ** DONE data file loading (json) jackson
+
+* DONE steps
+** DONE create a mixer
+** DONE get a sourcedataline on the mixer
+** DONE feed audio data to the sourcedataline
+
+
+* DONE changes to buffers in command loop, everything else in engine
+*** TODO put strings -> buffers map in the command loop
+*** TODO make a class for the data provided in control scope
+*** TODO make a class for the data provided in the audio engine scope
+*** TODO move all actions in the switch statment in loopWorker to methods
+*** TODO move all actions in the switch statment in Engine.respond to methods
+*** TODO eliminate the command enum and such from Engine, use the Command class
+
 
 * ideas
 ** try [[http://www.yeppp.info/][yuppp]] for performance
 ** port csound dsp
 ** tracker based on edn input
 ** integrate a graph lib for the ugens?
-* DONE steps
-** DONE create a mixer
-** DONE get a sourcedataline on the mixer
-** DONE feed audio data to the sourcedataline
 
 * java8 lambda
 ** class::method syntax
@@ -91,11 +109,9 @@ io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSyste
    (idletask)
    any interface with n methods and n - 1 having a
    default implmenetation is a @FunctionalInterface for the nth method
-* conversion / refactoring
-** TODO changes to buffers in command loop, everything else in engine
-*** TODO put strings -> buffers map in the command loop
-*** TODO make a class for the data provided in control scope
-*** TODO make a class for the data provided in the audio engine scope
-*** TODO move all actions in the switch statment in loopWorker to methods
-*** TODO move all actions in the switch statment in Engine.respond to methods
-*** TODO eliminate the command enum and such from Engine, use the Command class
+
+* DONE conversion / refactoring
+
+* references
+play with [[http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/package-summary.html][sound.sampled]]
+io via [[http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioSystem.html][audiosystem]]
