@@ -32,4 +32,14 @@ public interface UGen {
     public Map<String,Input> getInputs();
 
     public Map<String,Output> getOutputs();
+
+    public boolean connect (UGen owner, String port, String into) {
+        try {
+            getInputs().get(into).input(owner.getOutputs().get(port));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
