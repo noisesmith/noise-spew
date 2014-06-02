@@ -1,6 +1,7 @@
 package org.noisesmith.noisegenerator;
 
 import java.util.Map;
+import java.util.Vector;
 
 public interface UGen {
     // interface for inputs to Engine instances
@@ -35,11 +36,18 @@ public interface UGen {
 
     public boolean connect (UGen owner, String port, String into) {
         try {
-            getInputs().get(into).input(owner.getOutputs().get(port));
+            Input input = getInputs().get(into);
+            input.input(owner.getOutputs().get(port));
+            Vector<Input> connected = connections.get(owner.getId());
+            if (connected == null) connected = new Vector<Input>();
+            connected.add(this);
+            connections.put(owner.getId(), connected);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
+    private static Map<String,Vector<UGen>> connections
+        = new LinkedHashMap<String, Vector<UGen>>();
 }
